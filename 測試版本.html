@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sweet Dreams.</title>
+<title>Good Night.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700;900&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -82,7 +82,7 @@
   }
   .auth-card::before{
     content:"";position:absolute;top:0;left:0;width:8px;height:100%;
-    background:linear-gradient(180deg,var(--spine-romance),var(--spine-bl),var(--spine-gl),var(--spine-quad),var(--spine-male),var(--spine-female));
+    background:#BB8B6C;
   }
   .auth-title{font-size:26px;font-weight:700;margin:0 0 6px;letter-spacing:.02em;}
   .auth-sub{font-size:13px;color:var(--ink-soft);margin:0 0 28px;line-height:1.6;}
@@ -642,7 +642,7 @@
       <div class="header-row">
         <div class="brand">
           <button type="button" class="brand-mark serif" id="themeToggle" title="切換深色模式">☾</button>
-          <div class="brand-text serif">Sweet Dreams.</div>
+          <div class="brand-text serif">Good Night.</div>
         </div>
         <div class="search-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -922,8 +922,8 @@
         </div>
         <div class="field">
           <label>作品標籤</label>
-          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="輸入標籤，以「,」分隔，例：校園, 甜文, 虐">
-          <p class="field-hint">※標籤無固定清單，可隨時自訂新增；多個標籤請使用半型逗號分隔。</p>
+          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="輸入標籤，以半形逗號分隔。例：現代, 校園,…">
+          <p class="field-hint">※標籤無固定清單，可隨時自訂新增。</p>
         </div>
         <div class="field">
           <label>評分</label>
