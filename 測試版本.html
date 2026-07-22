@@ -113,7 +113,8 @@
   /* ---------- header ---------- */
   header{
     position:sticky;top:0;z-index:20;
-    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    background: #bb8b6c  
+    /*測試刪除 background:color-mix(in srgb, var(--bg) 88%, transparent);*/
     backdrop-filter:blur(10px);
     border-bottom:1px solid var(--card-border);
     padding:16px 28px;
@@ -554,7 +555,7 @@
       <div class="center-screen">
         <div class="auth-card">
           <p class="serif auth-title">晚安。</p>
-          <p class="auth-sub">${mode==="login" ? "登入你的帳號，回到你的書架。" : "建立帳號，開始紀錄你讀過的每一本書。"}</p>
+          <p class="auth-sub">${mode==="login" ? "登入你的帳號，回到你的書架。" : "建立帳號，紀錄你讀過的每一本書。"}</p>
           <div class="auth-error" id="authErr" style="display:none;"></div>
           <div class="field">
             <label>Email</label>
@@ -569,7 +570,7 @@
             ${mode==="login" ? "還沒有帳號？" : "已經有帳號了？"}
             <button id="authToggle">${mode==="login" ? "註冊新帳號" : "直接登入"}</button>
           </div>
-          <p class="auth-note">Paste：請勿使用重要密碼。</p>
+          <p class="auth-note">Paste：為保證您的資料安全，請勿使用重要密碼。</p>
         </div>
       </div>
     `;
