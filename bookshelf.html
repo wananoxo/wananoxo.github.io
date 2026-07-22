@@ -16,7 +16,7 @@
     --card:#fffdfb;
     --card-border:#e7d7c8;
     --ink:#2e2a27;
-    --ink-soft:#8A8071;
+    --ink-soft:#5c5449;
     --ink-faint:#B5AB98;
     --accent:#9C6B63;
     --accent-ink:#FFFDF9;
@@ -569,7 +569,7 @@
             ${mode==="login" ? "還沒有帳號？" : "已經有帳號了？"}
             <button id="authToggle">${mode==="login" ? "註冊新帳號" : "直接登入"}</button>
           </div>
-          <p class="auth-note">※網站為AI簡易製作，為保障您的資料安全，請勿使用重要密碼。</p>
+          <p class="auth-note">※網站為AI製作，為保障您的資料安全，請勿使用重要密碼。</p>
         </div>
       </div>
     `;
@@ -670,7 +670,7 @@
           <button class="pill ${filterCategory===c.key?'active':''}" data-cat="${c.key}"
             ${filterCategory===c.key ? `style="background:${c.color};border-color:${c.color};color:${c.activeText};"` : ""}>${c.key}</button>
         `).join("")}
-        <button class="pill fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 只看最愛</button>
+        <button class="pill fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 最愛</button>
       </div>
       <div class="adv-panel ${advOpen?'open':''}">
         <div class="adv-panel-inner">
@@ -780,7 +780,7 @@
     document.querySelectorAll("[data-del-id]").forEach(btn=>{
       btn.addEventListener("click", e=>{
         e.stopPropagation();
-        if(confirm("確定要刪除閱讀紀錄嗎？（此動作無法復原）")){
+        if(confirm("確定要刪除讀紀錄嗎？（此動作無法復原）")){
           deleteBook(btn.getAttribute("data-del-id"));
         }
       });
