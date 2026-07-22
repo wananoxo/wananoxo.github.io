@@ -423,12 +423,12 @@
 
   function friendlyAuthError(e){
     const map = {
-      "auth/email-already-in-use": "此 Email 已被註冊，請直接登入",
-      "auth/invalid-email": "Email 格式不正確",
+      "auth/email-already-in-use": "此郵箱已被註冊，請直接登入",
+      "auth/invalid-email": "郵箱格式不正確",
       "auth/weak-password": "密碼至少需要 6 個字元",
-      "auth/user-not-found": "Email 或密碼不正確",
-      "auth/wrong-password": "Email 或密碼不正確",
-      "auth/invalid-credential": "Email 或密碼不正確",
+      "auth/user-not-found": "郵箱或密碼不正確",
+      "auth/wrong-password": "郵箱或密碼不正確",
+      "auth/invalid-credential": "郵箱或密碼不正確",
       "auth/too-many-requests": "嘗試次數過多，請稍後再試",
       "auth/network-request-failed": "網路連線失敗，請確認網路狀態",
       "auth/api-key-not-valid.-please-pass-a-valid-api-key.": "Firebase 設定尚未填入，請聯絡網站管理者",
@@ -450,7 +450,7 @@
   // ---------------- AUTH ----------------
   async function handleLogin(email, password, errBox){
     if(!email || !password){
-      errBox.textContent = "請輸入 Email 與密碼";
+      errBox.textContent = "請輸入郵箱與密碼";
       errBox.style.display = "block";
       return false;
     }
@@ -466,7 +466,7 @@
 
   async function handleRegister(email, password, errBox){
     if(!email || !password){
-      errBox.textContent = "請輸入 Email 與密碼";
+      errBox.textContent = "請輸入郵箱與密碼";
       errBox.style.display = "block";
       return false;
     }
@@ -554,7 +554,7 @@
       <div class="center-screen">
         <div class="auth-card">
           <p class="serif auth-title">晚安。</p>
-          <p class="auth-sub">${mode==="login" ? "登入你的帳號，回到你的書架。" : "建立帳號，紀錄你讀過的每一本書。"}</p>
+          <p class="auth-sub">${mode==="login" ? "登入帳號，回到你的個人書櫃。" : "建立帳號，紀錄你讀過的每一本書。"}</p>
           <div class="auth-error" id="authErr" style="display:none;"></div>
           <div class="field">
             <label>Email</label>
@@ -569,7 +569,7 @@
             ${mode==="login" ? "還沒有帳號？" : "已經有帳號了？"}
             <button id="authToggle">${mode==="login" ? "註冊新帳號" : "直接登入"}</button>
           </div>
-          <p class="auth-note">Paste：為保證您的資料安全，請勿使用重要密碼。</p>
+          <p class="auth-note">※網站為AI製作，為保證您的資料安全，請勿使用重要密碼。</p>
         </div>
       </div>
     `;
@@ -854,7 +854,7 @@
             </button>
           </div>
         ` : `
-          <div class="card-hint">點擊回顧閱讀心得</div>
+          <div class="card-hint">點擊回顧心得</div>
         `}
       </div>
     `;
@@ -922,8 +922,8 @@
         </div>
         <div class="field">
           <label>作品標籤</label>
-          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="輸入標籤，以半形逗號分隔。例：現代, 校園,…">
-          <p class="field-hint">※標籤無固定清單，可隨時自訂新增。</p>
+          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="多個標籤以半形逗號分隔。（例：現代, 校園…）">
+          <p class="field-hint">※無固定清單，可自訂新增。</p>
         </div>
         <div class="field">
           <label>評分</label>
