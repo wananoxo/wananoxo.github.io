@@ -82,7 +82,7 @@
   }
   .auth-card::before{
     content:"";position:absolute;top:0;left:0;width:8px;height:100%;
-    background:linear-gradient(180deg,var(--spine-romance),var(--spine-bl),var(--spine-gl),var(--spine-quad),var(--spine-male),var(--spine-female));
+    background:var(--card);
   }
   .auth-title{font-size:26px;font-weight:700;margin:0 0 6px;letter-spacing:.02em;color:var(--accent-ink);}
   .auth-sub{font-size:13px;color:var(--accent-ink);opacity:.82;margin:0 0 28px;line-height:1.6;}
@@ -241,9 +241,9 @@
     font-size:11.5px;color:var(--ink-soft);line-height:1.7;margin-bottom:8px;
     display:flex;flex-direction:column;gap:2px;
   }
-  .pov-row{display:flex;align-items:baseline;gap:10px;}
-  .pov-row .pov-name{flex:1;min-width:0;}
-  .pov-row .pov-trait{flex-shrink:0;color:var(--ink-faint);}
+  .pov-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+  .pov-row .pov-name{flex:1;min-width:0;font-size:12.5px;font-weight:600;color:var(--ink);}
+  .pov-row .pov-trait{flex-shrink:0;font-size:10.5px;color:var(--ink-faint);}
   .card-pov b{color:var(--ink);font-weight:600;}
   .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
   .card-tags .tag-pill{
@@ -371,12 +371,12 @@
   "use strict";
 
   const CATEGORIES = [
-    { key:"言情", color:"var(--spine-romance)" },
-    { key:"耽美", color:"var(--spine-bl)" },
-    { key:"百合", color:"var(--spine-gl)" },
-    { key:"四愛", color:"var(--spine-quad)" },
-    { key:"男主", color:"var(--spine-male)" },
-    { key:"女主", color:"var(--spine-female)" },
+    { key:"言情", color:"var(--spine-romance)", activeText:"#fff" },
+    { key:"耽美", color:"var(--spine-bl)", activeText:"#2A3B4D" },
+    { key:"百合", color:"var(--spine-gl)", activeText:"#fff" },
+    { key:"四愛", color:"var(--spine-quad)", activeText:"#3A2E0E" },
+    { key:"男主", color:"var(--spine-male)", activeText:"#fff" },
+    { key:"女主", color:"var(--spine-female)", activeText:"#fff" },
   ];
   const catColor = k => (CATEGORIES.find(c=>c.key===k)||{}).color || "var(--ink-faint)";
 
@@ -667,7 +667,8 @@
       <div class="filter-bar">
         <button class="pill ${filterCategory==='全部'?'active':''}" data-cat="全部">全部</button>
         ${CATEGORIES.map(c=>`
-          <button class="pill ${filterCategory===c.key?'active':''}" data-cat="${c.key}">${c.key}</button>
+          <button class="pill ${filterCategory===c.key?'active':''}" data-cat="${c.key}"
+            ${filterCategory===c.key ? `style="background:${c.color};border-color:${c.color};color:${c.activeText};"` : ""}>${c.key}</button>
         `).join("")}
         <button class="pill fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 只看最愛</button>
       </div>
@@ -797,12 +798,12 @@
     `;
   }
 
-  function povRowHtml(label, name, trait){
+  function povRowHtml(name, trait){
     if(!name) return "";
     return `
       <div class="pov-row">
-        <span class="pov-name">${label}：<b>${escapeHtml(name)}</b></span>
-        <span class="pov-trait">屬性：${trait ? escapeHtml(trait) : ""}</span>
+        <span class="pov-name">${escapeHtml(name)}</span>
+        ${trait ? `<span class="pov-trait">【${escapeHtml(trait)}】</span>` : ""}
       </div>
     `;
   }
@@ -827,8 +828,8 @@
         </div>
         ${(b.pov1Name || b.pov2Name) ? `
           <div class="card-pov">
-            ${povRowHtml("第一視角", b.pov1Name, b.pov1Trait)}
-            ${povRowHtml("第二視角", b.pov2Name, b.pov2Trait)}
+            ${povRowHtml(b.pov1Name, b.pov1Trait)}
+            ${povRowHtml(b.pov2Name, b.pov2Trait)}
           </div>
         ` : ""}
         ${(b.tags && b.tags.length) ? `
