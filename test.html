@@ -536,22 +536,22 @@
       <div class="center-screen">
         <div class="auth-card">
           <p class="serif auth-title">晚安。</p>
-          <p class="auth-sub">${mode==="login" ? "登入你的帳號，回到你的睡前書架。" : "建立帳號，開始紀錄你讀過的每一本書。"}</p>
+          <p class="auth-sub">${mode==="login" ? "登入你的帳號，回到你的書架。" : "建立帳號，開始紀錄你讀過的每一本書。"}</p>
           <div class="auth-error" id="authErr" style="display:none;"></div>
           <div class="field">
             <label>Email</label>
-            <input type="email" id="authUser" autocomplete="username" placeholder="輸入 Email">
+            <input type="email" id="authUser" autocomplete="username" placeholder="your@email.com">
           </div>
           <div class="field">
             <label>密碼</label>
-            <input type="password" id="authPass" autocomplete="${mode==='login'?'current-password':'new-password'}" placeholder="輸入密碼（至少 6 個字元）">
+            <input type="password" id="authPass" autocomplete="${mode==='login'?'current-password':'new-password'}" placeholder="＊＊＊＊＊＊">
           </div>
           <button class="btn-primary" id="authSubmit">${mode==="login" ? "登入" : "註冊"}</button>
           <div class="auth-switch">
             ${mode==="login" ? "還沒有帳號？" : "已經有帳號了？"}
             <button id="authToggle">${mode==="login" ? "註冊新帳號" : "直接登入"}</button>
           </div>
-          <p class="auth-note">資料儲存於雲端資料庫，登入同一組帳號即可在任何裝置、瀏覽器同步存取。</p>
+          <p class="auth-note">帳號資料可跨裝置同步；請勿使用重要密碼登錄。</p>
         </div>
       </div>
     `;
