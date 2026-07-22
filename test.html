@@ -655,7 +655,7 @@
             <div class="adv-row">
               <div class="adv-row-label">評分篩選</div>
               <div class="adv-chips" id="ratingChips">
-                ${[1,2,3,4,5].map(n=>`
+                ${[5,4,3,2,1].map(n=>`
                   <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${'★'.repeat(n)}</button>
                 `).join("")}
               </div>
@@ -853,13 +853,13 @@
         </div>
         <div class="field">
           <label>作品標籤</label>
-          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="輸入標籤，以「,」分隔，例：校園, 甜文, 虐">
-          <p class="field-hint">標籤沒有固定清單，隨時可自訂新增；多個標籤用逗號「,」分隔。</p>
+          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="輸入標籤，例：校園, 甜文…">
+          <p class="field-hint">※標籤無固定清單，可隨時新增自訂；多個標籤用半形逗號（,）分隔。</p>
         </div>
         <div class="field">
           <label>評分</label>
           <div class="star-picker" id="mStars">
-            ${[5,4,3,2,1].map(n=>`<button type="button" data-n="${n}" class="${n<=draft.rating?'on':''}">★</button>`).join("")}
+            ${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" class="${n<=draft.rating?'on':''}">★</button>`).join("")}
           </div>
         </div>
         <div class="field">
