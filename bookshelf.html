@@ -195,7 +195,7 @@
     background:var(--card);color:var(--ink-soft);font-size:12px;font-weight:500;transition:all .15s ease;
   }
   .chip.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
-  .chip.active.tag-chip{background:var(--gold);border-color:var(--gold);color:#3A2E0E;}
+  /*.chip.active.tag-chip{background:var(--gold);border-color:var(--gold);color:#3A2E0E;}*/
   .adv-empty-note{font-size:11.5px;color:var(--ink-faint);}
   .adv-clear{
     align-self:flex-start;background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;padding:2px 0;
@@ -233,9 +233,9 @@
     display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;
     font-size:11px;font-weight:600;background:var(--bg-soft);color:var(--ink-soft);
   }
-  .wordcount-tag{
-    display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;
-    font-size:11px;font-weight:600;background:var(--accent-soft);color:var(--accent);white-space:nowrap;
+　.wordcount-tag{
+　  display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;
+　  font-size:11px;font-weight:600;background:var(--bg-soft);color:var(--ink-soft);white-space:nowrap;
   }
   .card-pov{
     font-size:11.5px;color:var(--ink-soft);line-height:1.7;margin-bottom:8px;
@@ -246,9 +246,9 @@
   .pov-row .pov-trait{flex-shrink:0;font-size:10.5px;color:var(--ink-faint);}
   .card-pov b{color:var(--ink);font-weight:600;}
   .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
-  .card-tags .tag-pill{
-    padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:500;
-    background:var(--accent-soft);color:var(--accent);
+　.card-tags .tag-pill{
+ 　 padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:500;
+ 　 background:var(--bg-soft);color:var(--ink-soft);
   }
   .card-expand{margin-top:12px;padding-top:12px;border-top:1px solid var(--card-border);}
   .card-date-full{font-size:11.5px;color:var(--ink-faint);margin-bottom:8px;}
@@ -687,7 +687,7 @@
             ${allTags().length ? `
               <div class="adv-chips" id="tagChips">
                 ${allTags().map(t=>`
-                  <button type="button" class="chip tag-chip ${selectedTags.includes(t)?'active':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>
+                  <button type="button" class="chip /*tag-chip*/ ${selectedTags.includes(t)?'active':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>
                 `).join("")}
               </div>
             ` : `<div class="adv-empty-note">還沒有任何標籤，新增閱讀紀錄時可以自訂標籤。</div>`}
