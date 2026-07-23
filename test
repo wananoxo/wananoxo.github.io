@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good Night.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700;900&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --bg:#faf3ed;
+    --bg-soft:#f0e6dd;
+    --card:#fffdfb;
+    --card-border:#e7d7c8;
+    --ink:#2e2a27;
+    --ink-soft:#5c5449;
+    --ink-faint:#B5AB98;
+    --accent:#9C6B63;
+    --accent-ink:#FFFDF9;
+    --accent-soft:#EFDCD5;
+    --gold:#e0be70;
+    --shadow: 0 1px 2px rgba(59,54,45,0.04), 0 6px 18px rgba(59,54,45,0.06);
+    --shadow-hover: 0 2px 4px rgba(59,54,45,0.06), 0 14px 30px rgba(59,54,45,0.10);
+    --radius: 18px;
+    --spine-romance:#C97D82;
+    --spine-bl:#6C82AC;
+    --spine-gl:#9A7FBE;
+    --spine-quad:#e0be70;
+    --spine-male:#004469;
+    --spine-female:#7f0020;
+    --spine-classic:#8B6F47;
+  }
+  [data-theme="dark"]{
+    --bg:#211E1A;
+    --bg-soft:#28241F;
+    --card:#2B2722;
+    --card-border:#3B352C;
+    --ink:#EDE5D5;
+    --ink-soft:#A79C88;
+    --ink-faint:#6E6455;
+    --accent:#D3958B;
+    --accent-ink:#241D1A;
+    --accent-soft:#3E2E2C;
+    --gold:#D8B463;
+    --shadow: 0 1px 2px rgba(0,0,0,0.2), 0 6px 20px rgba(0,0,0,0.28);
+    --shadow-hover: 0 2px 6px rgba(0,0,0,0.3), 0 16px 34px rgba(0,0,0,0.34);
+    --spine-romance:#B96F76;
+    --spine-bl:#b3cbe8;
+    --spine-gl:#8B6FAE;
+    --spine-quad:#B98A32;
+    --spine-male:#5C6F94;
+    --spine-female:#7f0020;
+    --spine-classic:#79603F;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Noto Sans TC', sans-serif;
+    min-height:100vh;
+    transition:background .25s ease, color .25s ease;
+  }
+  .serif{font-family:'Noto Serif TC', serif;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;}
+
+  /* ---------- top-level layout ---------- */
+  #app{min-height:100vh;display:flex;flex-direction:column;}
+  .center-screen{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:24px;
+  }
+
+  /* ---------- login/register ---------- */
+  .auth-card{
+    width:100%;max-width:380px;background:var(--card);
+    border:1px solid var(--card-border);border-radius:24px;
+    padding:40px 34px 34px;box-shadow:var(--shadow-hover);
+    position:relative;overflow:hidden;
+  }
+  .auth-card::before{
+    content:"";position:absolute;top:0;left:0;width:8px;height:100%;
+    background:#BB8B6C;
+  }
+  .auth-title{font-size:26px;font-weight:700;margin:0 0 6px;letter-spacing:.02em;}
+  .auth-sub{font-size:13px;color:var(--ink-soft);margin:0 0 28px;line-height:1.6;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:6px;font-weight:500;}
+  .field input{
+    width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--card-border);
+    background:var(--bg-soft);color:var(--ink);font-size:14.5px;outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .btn-primary{
+    width:100%;padding:12px;border:none;border-radius:12px;background:var(--accent);
+    color:var(--accent-ink);font-size:15px;font-weight:600;letter-spacing:.02em;
+    box-shadow:var(--shadow);transition:transform .12s ease, box-shadow .12s ease, opacity .15s;
+  }
+  .btn-primary:hover{box-shadow:var(--shadow-hover);transform:translateY(-1px);}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .auth-switch{margin-top:18px;text-align:center;font-size:13px;color:var(--ink-soft);}
+  .auth-switch button{background:none;border:none;color:var(--accent);font-weight:600;font-size:13px;padding:0;}
+  .auth-error{
+    background:var(--accent-soft);color:var(--accent);border-radius:10px;padding:9px 12px;
+    font-size:12.5px;margin-bottom:14px;line-height:1.5;
+  }
+  .auth-note{font-size:11px;color:var(--ink-faint);margin-top:22px;line-height:1.6;text-align:center;}
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:20;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--card-border);
+    padding:16px 28px;
+  }
+  .header-row{
+    max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:10px;margin-right:auto;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(160deg,var(--spine-romance),var(--spine-quad));
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;
+    box-shadow:var(--shadow);cursor:pointer;border:none;transition:transform .15s ease, box-shadow .15s ease;
+    padding:0;
+  }
+  .brand-mark:hover{box-shadow:var(--shadow-hover);transform:translateY(-1px) scale(1.04);}
+  .brand-mark:active{transform:translateY(0) scale(0.98);}
+  .brand-text{font-size:19px;font-weight:700;letter-spacing:.02em;}
+  .search-wrap{position:relative;flex:1;min-width:180px;max-width:340px;}
+  .search-wrap input{
+    width:100%;padding:9px 14px 9px 36px;border-radius:999px;border:1px solid var(--card-border);
+    background:var(--bg-soft);color:var(--ink);font-size:13.5px;outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-faint);}
+  .icon-btn{
+    width:38px;height:38px;border-radius:11px;border:1px solid var(--card-border);
+    background:var(--card);color:var(--ink);display:flex;align-items:center;justify-content:center;
+    transition:background .15s ease, box-shadow .15s ease;box-shadow:var(--shadow);
+  }
+  .icon-btn:hover{box-shadow:var(--shadow-hover);}
+  .add-btn{
+    display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:11px;border:none;
+    background:var(--accent);color:var(--accent-ink);font-size:13.5px;font-weight:600;box-shadow:var(--shadow);
+    transition:box-shadow .15s ease, transform .12s ease;
+  }
+  .add-btn:hover{box-shadow:var(--shadow-hover);transform:translateY(-1px);}
+  .user-chip{font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
+  .user-chip span{font-weight:600;color:var(--ink);}
+
+  /* ---------- filter bar ---------- */
+  .pill{
+    padding:7px 15px;border-radius:999px;border:1px solid var(--card-border);
+    background:var(--card);color:var(--ink-soft);font-size:12.5px;font-weight:500;
+    display:flex;align-items:center;gap:6px;transition:all .15s ease;
+  }
+  .pill .dot{width:8px;height:8px;border-radius:50%;}
+  .pill.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+  .pill:hover{box-shadow:var(--shadow);}
+  .fav-toggle{}
+  .fav-toggle.active{background:var(--gold);color:#3A2E0E;border-color:var(--gold);}
+  .adv-toggle{display:flex;align-items:center;gap:6px;}
+  .adv-toggle svg{transition:transform .15s ease;}
+  .adv-toggle.open svg{transform:rotate(180deg);}
+  .adv-badge{
+    display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;
+    padding:0 4px;border-radius:999px;background:var(--accent);color:var(--accent-ink);
+    font-size:10px;font-weight:700;
+  }
+  .adv-panel{
+    max-width:1180px;margin:0 auto;padding:0 28px;
+    max-height:0;overflow:hidden;opacity:0;transition:max-height .22s ease, opacity .18s ease, padding .22s ease;
+  }
+  .adv-panel.open{max-height:400px;opacity:1;padding:14px 28px 4px;}
+  .adv-panel-inner{
+    background:var(--bg-soft);border:1px solid var(--card-border);border-radius:16px;
+    padding:16px 18px;display:flex;flex-direction:column;gap:14px;
+  }
+  .adv-row{display:flex;flex-direction:column;gap:8px;}
+  .adv-row-label{font-size:12px;font-weight:600;color:var(--ink-soft);}
+  .adv-chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    padding:5px 12px;border-radius:999px;border:1px solid var(--card-border);
+    background:var(--card);color:var(--ink-soft);font-size:12px;font-weight:500;transition:all .15s ease;
+  }
+  .chip.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+  .adv-empty-note{font-size:11.5px;color:var(--ink-faint);}
+  .adv-clear{
+    align-self:flex-start;background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;padding:2px 0;
+  }
+  @media (max-width:560px){ .adv-panel{padding:0 16px;} .adv-panel.open{padding:14px 16px 4px;} }
+
+  /* ---------- main / grid ---------- */
+  main{max-width:1180px;margin:0 auto;padding:22px 28px 60px;width:100%;flex:1;}
+  .count-row{font-size:12.5px;color:var(--ink-faint);margin-bottom:16px;}
+  .grid{
+    display:grid;grid-template-columns:repeat(3, 1fr);gap:18px;
+  }
+  @media (max-width:980px){ .grid{grid-template-columns:repeat(2, 1fr);} }
+  @media (max-width:640px){ .grid{grid-template-columns:1fr;} }
+  .book-card{
+    position:relative;background:var(--card);border:1px solid var(--card-border);
+    border-radius:var(--radius);padding:20px 18px 16px 24px;box-shadow:var(--shadow);
+    transition:box-shadow .18s ease, transform .18s ease;overflow:hidden;cursor:pointer;
+  }
+  .book-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);}
+  .spine{position:absolute;top:0;left:0;width:6px;height:100%;}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;}
+  .card-title{font-size:16.5px;font-weight:700;line-height:1.4;margin:0;}
+  .card-author{font-size:12.5px;color:var(--ink-soft);margin:3px 0 0;}
+  .fav-btn{
+    flex-shrink:0;background:none;border:none;padding:2px;color:var(--ink-faint);
+    transition:color .15s ease, transform .15s ease;
+  }
+  .fav-btn.active{color:var(--gold);}
+  .fav-btn:hover{transform:scale(1.12);}
+  .card-meta{display:flex;align-items:center;justify-content:space-between;margin:10px 0 8px;}
+  .stars{display:flex;gap:2px;color:var(--gold);font-size:14px;}
+  .star-empty{color:var(--card-border);}
+  .card-date{font-size:11.5px;color:var(--ink-faint);}
+  .card-cat-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;}
+  .tag{
+    display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;
+    font-size:11px;font-weight:600;background:var(--bg-soft);color:var(--ink-soft);
+  }
+  .wordcount-tag{
+    display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;
+    font-size:11px;font-weight:600;background:var(--bg-soft);color:var(--ink-soft);white-space:nowrap;
+}
+  .card-pov{
+    font-size:11.5px;color:var(--ink-soft);line-height:1.7;margin-bottom:8px;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .pov-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+  .pov-row .pov-name{flex:1;min-width:0;font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pov-row .pov-trait{flex-shrink:0;max-width:55%;font-size:10.5px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card-pov b{color:var(--ink);font-weight:600;}
+  .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+  .card-tags .tag-pill{
+    padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:500;
+    background:var(--bg-soft);color:var(--ink-soft);
+  }
+  .card-review-full{
+    font-size:12.5px;color:var(--ink-soft);line-height:1.75;white-space:pre-wrap;margin:0;
+  }
+  .card-hint{
+    font-size:11px;color:var(--ink-faint);text-align:center;margin-top:12px;padding-top:10px;
+    border-top:1px dashed var(--card-border);
+  }
+
+  /* ---------- view popup (click a card) ---------- */
+  .view-modal-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;}
+  .view-modal-actions{display:flex;gap:6px;flex-shrink:0;}
+  .view-modal-actions button{
+    width:32px;height:32px;border-radius:10px;border:1px solid var(--card-border);background:var(--bg-soft);
+    color:var(--ink-soft);display:flex;align-items:center;justify-content:center;
+    transition:background .15s ease,color .15s ease;
+  }
+  .view-modal-actions button:hover{background:var(--accent-soft);color:var(--accent);}
+  .view-row{display:flex;align-items:center;gap:14px;font-size:13px;padding:5px 0;}
+  .view-row .view-label{width:56px;flex-shrink:0;color:var(--accent);font-weight:600;}
+  .view-row .view-value{color:var(--ink);}
+  .view-divider{border:none;border-top:1px solid var(--card-border);margin:14px 0;}
+  .view-section-label{font-size:12.5px;font-weight:600;color:var(--accent);margin-bottom:8px;}
+
+  /* ---------- empty state ---------- */
+  .empty{
+    grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--ink-soft);
+  }
+  .empty-mark{font-size:38px;margin-bottom:14px;}
+  .empty h3{font-size:16px;color:var(--ink);margin:0 0 6px;}
+  .empty p{font-size:13px;margin:0 0 20px;line-height:1.7;}
+
+  /* ---------- modal ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(30,26,20,0.45);backdrop-filter:blur(2px);
+    display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;
+  }
+  .modal{
+    width:100%;max-width:460px;max-height:88vh;overflow-y:auto;background:var(--card);
+    border-radius:22px;padding:28px 26px;box-shadow:var(--shadow-hover);border:1px solid var(--card-border);
+  }
+  .modal h2{font-size:19px;font-weight:700;margin:0 0 20px;}
+  .field textarea{
+    width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--card-border);
+    background:var(--bg-soft);color:var(--ink);font-size:13.5px;outline:none;resize:vertical;min-height:180px;
+    line-height:1.6;transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .field textarea:focus, .field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .field select{
+    width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--card-border);
+    background:var(--bg-soft);color:var(--ink);font-size:14px;outline:none;
+  }
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .pov-legend{font-size:12px;font-weight:600;color:var(--ink);margin:2px 0 8px;}
+  .field-hint{font-size:11px;color:var(--ink-faint);margin-top:5px;line-height:1.5;}
+  .star-picker{display:flex;gap:6px;}
+  .star-picker button{background:none;border:none;font-size:26px;color:var(--card-border);padding:0;line-height:1;transition:color .12s ease, transform .1s ease;}
+  .star-picker button.on{color:var(--gold);}
+  .star-picker button:hover{transform:scale(1.1);}
+  .fav-check{display:flex;align-items:center;gap:9px;margin:4px 0 20px;}
+  .fav-check input{width:17px;height:17px;accent-color:var(--accent);}
+  .fav-check label{font-size:13.5px;color:var(--ink-soft);}
+  .modal-actions{display:flex;gap:10px;margin-top:6px;}
+  .btn-ghost{
+    flex:1;padding:11px;border-radius:12px;border:1px solid var(--card-border);background:none;
+    color:var(--ink-soft);font-size:14px;font-weight:600;transition:background .15s ease;
+  }
+  .btn-ghost:hover{background:var(--bg-soft);}
+  .modal-actions .btn-primary{flex:1.4;}
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);
+    background:var(--ink);color:var(--bg);padding:11px 20px;border-radius:12px;font-size:13px;
+    box-shadow:var(--shadow-hover);opacity:0;pointer-events:none;transition:all .25s ease;z-index:100;
+  }
+  [data-theme="dark"] .toast{background:var(--card);color:var(--ink);border:1px solid var(--card-border);}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .loading-screen{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);
+    font-size:13.5px;gap:10px;
+  }
+  .spinner{
+    width:16px;height:16px;border-radius:50%;border:2px solid var(--card-border);
+    border-top-color:var(--accent);animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  @media (max-width:560px){
+    header{padding:14px 16px;}
+    main{padding:18px 16px 50px;}
+    .row-2{grid-template-columns:1fr;}
+    .search-wrap{order:3;max-width:none;flex-basis:100%;}
+  }
+</style>
+</head>
+<body>
+<div id="app"><div class="loading-screen"><div class="spinner"></div>正在載入書架…</div></div>
+
+<script>
+  // ====================================================================
+  // 請在這裡填入你自己的 Firebase 設定
+  // 取得方式：Firebase Console → 專案設定（齒輪圖示）→ 一般 →
+  //           拉到最下面「你的應用程式」→ 選擇 Web 應用程式 → 複製 firebaseConfig
+  // 這組 config 本身不是密鑰，可以放心寫在前端程式碼裡，
+  // 真正的存取控制是靠 Firestore 安全規則（見下方說明）
+  // ====================================================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyCsv-3irOpjiyjvFuZuZvM4q57kWtXgfzs",
+    authDomain: "wanan-bookshelf.firebaseapp.com",
+    projectId: "wanan-bookshelf",
+    storageBucket: "wanan-bookshelf.firebasestorage.app",
+    messagingSenderId: "454169838552",
+    appId: "1:454169838552:web:355f73d2f809be4894e8ad"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  // ====================================================================
+
+(function(){
+  "use strict";
+
+  const CATEGORIES = [
+    { key:"言情", color:"var(--spine-romance)", activeText:"#fff" },
+    { key:"耽美", color:"var(--spine-bl)", activeText:"#fff" },
+    { key:"百合", color:"var(--spine-gl)", activeText:"#fff" },
+    { key:"四愛", color:"var(--spine-quad)", activeText:"#fff" },
+    { key:"男主", color:"var(--spine-male)", activeText:"#fff" },
+    { key:"女主", color:"var(--spine-female)", activeText:"#fff" },
+    { key:"經典", color:"var(--spine-classic)", activeText:"#fff" },
+  ];
+  const catColor = k => (CATEGORIES.find(c=>c.key===k)||{}).color || "var(--ink-faint)";
+
+  let theme = "light";
+  let currentUser = null;   // display email
+  let currentUid = null;    // Firebase auth uid
+  let unsubscribeBooksFn = null;
+  let books = [];
+  let filterCategory = "全部";
+  let favOnly = false;
+  let searchTerm = "";
+  let editingId = null; // null = not editing / add mode when modal open
+  let advOpen = false;
+  let selectedRatings = [];   // e.g. [4,5]
+  let selectedTags = [];      // e.g. ["校園","甜文"]
+  let isComposing = false;    // true while an IME (e.g. 注音) composition is in progress
+
+  const app = document.getElementById("app");
+
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+  let toastTimer = null;
+  function toast(msg){
+    let el = document.querySelector(".toast");
+    if(!el){ el = document.createElement("div"); el.className="toast"; document.body.appendChild(el); }
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.remove("show"), 2200);
+  }
+
+  // theme is a per-device preference, kept locally only — no need to sync it
+  const THEME_KEY = "du-ce-zhi-theme";
+  function getLocalTheme(){
+    try{ return localStorage.getItem(THEME_KEY); }catch(e){ return null; }
+  }
+  function setLocalTheme(t){
+    try{ localStorage.setItem(THEME_KEY, t); }catch(e){ /* ignore */ }
+  }
+
+  function friendlyAuthError(e){
+    const map = {
+      "auth/email-already-in-use": "此郵箱已被註冊，請直接登入",
+      "auth/invalid-email": "郵箱格式不正確",
+      "auth/weak-password": "密碼至少需要 6 個字元",
+      "auth/user-not-found": "郵箱或密碼不正確",
+      "auth/wrong-password": "郵箱或密碼不正確",
+      "auth/invalid-credential": "郵箱或密碼不正確",
+      "auth/too-many-requests": "嘗試次數過多，請稍後再試",
+      "auth/network-request-failed": "網路連線失敗，請確認網路狀態",
+      "auth/api-key-not-valid.-please-pass-a-valid-api-key.": "Firebase 設定尚未填入，請聯絡網站管理者",
+    };
+    return map[e.code] || (e.message || "發生錯誤，請稍後再試");
+  }
+
+  function applyTheme(){
+    document.documentElement.setAttribute("data-theme", theme);
+  }
+
+  function toggleTheme(){
+    theme = theme === "light" ? "dark" : "light";
+    applyTheme();
+    setLocalTheme(theme);
+    render();
+  }
+
+  // ---------------- AUTH ----------------
+  async function handleLogin(email, password, errBox){
+    if(!email || !password){
+      errBox.textContent = "請輸入郵箱與密碼";
+      errBox.style.display = "block";
+      return false;
+    }
+    try{
+      await auth.signInWithEmailAndPassword(email, password);
+      return true;
+    }catch(e){
+      errBox.textContent = friendlyAuthError(e);
+      errBox.style.display = "block";
+      return false;
+    }
+  }
+
+  async function handleRegister(email, password, errBox){
+    if(!email || !password){
+      errBox.textContent = "請輸入郵箱與密碼";
+      errBox.style.display = "block";
+      return false;
+    }
+    if(password.length < 6){
+      errBox.textContent = "密碼至少需要 6 個字元";
+      errBox.style.display = "block";
+      return false;
+    }
+    try{
+      await auth.createUserWithEmailAndPassword(email, password);
+      return true;
+    }catch(e){
+      errBox.textContent = friendlyAuthError(e);
+      errBox.style.display = "block";
+      return false;
+    }
+  }
+
+  async function handleLogout(){
+    filterCategory = "全部"; favOnly = false; searchTerm = "";
+    selectedRatings = []; selectedTags = []; advOpen = false;
+    try{ await auth.signOut(); }catch(e){ toast("登出失敗，請稍後再試"); }
+  }
+
+  // ---------------- BOOKS (Firestore, real-time) ----------------
+  function subscribeBooks(uid){
+    if(unsubscribeBooksFn){ unsubscribeBooksFn(); unsubscribeBooksFn = null; }
+    unsubscribeBooksFn = db.collection("books").where("uid","==",uid)
+      .onSnapshot(snapshot=>{
+        books = snapshot.docs.map(d=>({ id: d.id, ...d.data() }))
+          .sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+        render();
+      }, err=>{
+        console.error(err);
+        toast("讀取資料失敗，請確認網路連線或 Firebase 設定");
+      });
+  }
+
+  async function addOrUpdateBook(data){
+    const wasEditing = !!editingId;
+    try{
+      if(editingId){
+        await db.collection("books").doc(editingId).update(data);
+      } else {
+        await db.collection("books").add({
+          ...data,
+          uid: currentUid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      toast(wasEditing ? "已更新紀錄" : "已新增閱讀紀錄");
+    }catch(e){
+      toast("儲存失敗：" + friendlyAuthError(e));
+    }
+    editingId = null;
+    // no manual render() needed here — the Firestore onSnapshot listener
+    // will pick up the change (from this tab and any other synced tab/device) and re-render
+  }
+
+  async function deleteBook(id){
+    try{
+      await db.collection("books").doc(id).delete();
+      toast("已刪除紀錄");
+    }catch(e){
+      toast("刪除失敗：" + friendlyAuthError(e));
+    }
+  }
+
+  async function toggleFavorite(id){
+    const b = books.find(x=>x.id===id);
+    if(!b) return;
+    try{
+      await db.collection("books").doc(id).update({ favorite: !b.favorite });
+    }catch(e){
+      toast("更新失敗：" + friendlyAuthError(e));
+    }
+  }
+
+  // ---------------- RENDER: AUTH SCREEN ----------------
+  function renderAuth(mode){
+    app.innerHTML = `
+      <div class="center-screen">
+        <div class="auth-card">
+          <p class="serif auth-title">晚安。</p>
+          <p class="auth-sub">${mode==="login" ? "登入帳號，回到你的個人書櫃。" : "建立帳號，紀錄你讀過的每一本書。"}</p>
+          <div class="auth-error" id="authErr" style="display:none;"></div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="authUser" autocomplete="username" placeholder="your@email.com">
+          </div>
+          <div class="field">
+            <label>密碼</label>
+            <input type="password" id="authPass" autocomplete="${mode==='login'?'current-password':'new-password'}" placeholder="＊＊＊＊＊＊">
+          </div>
+          <button class="btn-primary" id="authSubmit">${mode==="login" ? "登入" : "註冊"}</button>
+          <div class="auth-switch">
+            ${mode==="login" ? "還沒有帳號？" : "已經有帳號了？"}
+            <button id="authToggle">${mode==="login" ? "註冊新帳號" : "直接登入"}</button>
+          </div>
+          <p class="auth-note">※網站為AI製作，為保障您的資料安全，請勿使用重要密碼。</p>
+        </div>
+      </div>
+    `;
+    const errBox = document.getElementById("authErr");
+    const submit = document.getElementById("authSubmit");
+    const userInput = document.getElementById("authUser");
+    const passInput = document.getElementById("authPass");
+
+    async function doSubmit(){
+      errBox.style.display = "none";
+      submit.disabled = true;
+      const u = userInput.value.trim();
+      const p = passInput.value;
+      const ok = mode==="login" ? await handleLogin(u,p,errBox) : await handleRegister(u,p,errBox);
+      if(!ok) submit.disabled = false;
+    }
+    submit.addEventListener("click", doSubmit);
+    passInput.addEventListener("keydown", e=>{ if(e.key==="Enter") doSubmit(); });
+    userInput.addEventListener("keydown", e=>{ if(e.key==="Enter") passInput.focus(); });
+    document.getElementById("authToggle").addEventListener("click", ()=>renderAuth(mode==="login"?"register":"login"));
+  }
+
+  // ---------------- RENDER: STARS ----------------
+  function starsHtml(rating){
+    let out = "";
+    for(let i=1;i<=5;i++){
+      out += `<span class="${i<=rating ? '' : 'star-empty'}">★</span>`;
+    }
+    return `<span class="stars">${out}</span>`;
+  }
+
+  // ---------------- RENDER: MAIN APP ----------------
+  function allTags(){
+    const counts = {};
+    books.forEach(b => (b.tags||[]).forEach(t => { counts[t] = (counts[t]||0) + 1; }));
+    return Object.keys(counts).sort((a,b)=> counts[b]-counts[a] || a.localeCompare(b,'zh-Hant'));
+  }
+
+  function filteredBooks(){
+    return books.filter(b=>{
+      if(favOnly && !b.favorite) return false;
+      if(filterCategory !== "全部" && b.category !== filterCategory) return false;
+      if(selectedRatings.length && !selectedRatings.includes(b.rating)) return false;
+      if(selectedTags.length){
+        const bTags = b.tags || [];
+        if(!selectedTags.some(t=>bTags.includes(t))) return false;
+      }
+      if(searchTerm){
+        const t = searchTerm.toLowerCase();
+        if(!(b.title||"").toLowerCase().includes(t) && !(b.author||"").toLowerCase().includes(t)) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderApp(){
+    // Build the outer shell only once; afterwards we just refresh its inner
+    // regions independently so the search <input> DOM node is never destroyed
+    // by typing (destroying it mid-keystroke breaks IME composition, e.g. 注音).
+    // Only the first row (title/search/filter/add/user) is inside the sticky
+    // <header>; the collapsible filter panel lives in its own normal-flow
+    // container below it, so it scrolls away with the page instead of staying pinned.
+    if(!document.getElementById("headerEl")){
+      app.innerHTML = `<header id="headerEl"></header><div id="filterPanelArea"></div><main><div id="resultsArea"></div></main>`;
+    }
+    renderHeaderContent();
+    renderFilterPanel();
+    renderResultsContent();
+  }
+
+  function renderHeaderContent(){
+    const headerEl = document.getElementById("headerEl");
+    const advCount = (filterCategory!=="全部"?1:0) + (favOnly?1:0) + selectedRatings.length + selectedTags.length;
+    headerEl.innerHTML = `
+      <div class="header-row">
+        <div class="brand">
+          <button type="button" class="brand-mark serif" id="themeToggle" title="切換深色模式">☾</button>
+          <div class="brand-text serif">Good Night.</div>
+        </div>
+        <div class="search-wrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="searchInput" placeholder="搜尋書名或作者…" value="${escapeHtml(searchTerm)}">
+        </div>
+        <button class="pill adv-toggle ${advOpen?'open':''}" id="advToggleBtn">
+          篩選
+          ${advCount ? `<span class="adv-badge">${advCount}</span>` : ""}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <button class="add-btn" id="openAdd">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          新增紀錄
+        </button>
+        <div class="user-chip">
+          <span>${escapeHtml(currentUser)}</span>
+          <button class="icon-btn" id="logoutBtn" title="登出" style="width:32px;height:32px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+    `;
+
+    const searchInput = document.getElementById("searchInput");
+    searchInput.addEventListener("compositionstart", ()=>{ isComposing = true; });
+    searchInput.addEventListener("compositionend", e=>{
+      isComposing = false;
+      searchTerm = e.target.value;
+      renderResultsContent();
+    });
+    searchInput.addEventListener("input", e=>{
+      if(isComposing) return; // wait for compositionend so IME candidates (e.g. 注音) aren't interrupted
+      searchTerm = e.target.value;
+      renderResultsContent(); // only refresh the grid — never rebuild the header/input itself
+    });
+    document.getElementById("openAdd").addEventListener("click", ()=>openModal());
+    document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+    document.getElementById("logoutBtn").addEventListener("click", handleLogout);
+    document.getElementById("advToggleBtn").addEventListener("click", ()=>{ advOpen = !advOpen; renderApp(); });
+  }
+
+  function renderFilterPanel(){
+    const panelArea = document.getElementById("filterPanelArea");
+    panelArea.innerHTML = `
+      <div class="adv-panel ${advOpen?'open':''}">
+        <div class="adv-panel-inner">
+          <div class="adv-row">
+            <div class="adv-row-label">分類篩選</div>
+            <div class="adv-chips" id="categoryChips">
+              <button type="button" class="chip ${filterCategory==='全部'?'active':''}" data-cat="全部">全部</button>
+              ${CATEGORIES.map(c=>`
+                <button type="button" class="chip ${filterCategory===c.key?'active':''}" data-cat="${c.key}"
+                  ${filterCategory===c.key ? `style="background:${c.color};border-color:${c.color};color:${c.activeText};"` : ""}>${c.key}</button>
+              `).join("")}
+              <button type="button" class="chip fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 最愛</button>
+            </div>
+          </div>
+          <div class="adv-row">
+            <div class="adv-row-label">評分篩選</div>
+            <div class="adv-chips" id="ratingChips">
+              ${[5,4,3,2,1].map(n=>`
+                <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${'★'.repeat(n)}</button>
+              `).join("")}
+            </div>
+          </div>
+          <div class="adv-row">
+            <div class="adv-row-label">標籤篩選</div>
+            ${allTags().length ? `
+              <div class="adv-chips" id="tagChips">
+                ${allTags().map(t=>`
+                  <button type="button" class="chip ${selectedTags.includes(t)?'active':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>
+                `).join("")}
+              </div>
+            ` : `<div class="adv-empty-note">還沒有任何標籤，新增閱讀紀錄時可以自訂標籤。</div>`}
+          </div>
+          ${(filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length) ? `<button class="adv-clear" id="advClearBtn">清除篩選條件</button>` : ""}
+        </div>
+      </div>
+    `;
+
+    document.getElementById("favToggleBtn").addEventListener("click", ()=>{ favOnly = !favOnly; renderApp(); });
+    document.querySelectorAll("#categoryChips [data-cat]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{ filterCategory = btn.getAttribute("data-cat"); renderApp(); });
+    });
+    const ratingChipsEl = document.getElementById("ratingChips");
+    if(ratingChipsEl){
+      ratingChipsEl.querySelectorAll("[data-rating]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const n = parseInt(btn.getAttribute("data-rating"),10);
+          selectedRatings = selectedRatings.includes(n) ? selectedRatings.filter(x=>x!==n) : [...selectedRatings, n];
+          advOpen = true;
+          renderApp();
+        });
+      });
+    }
+    const tagChipsEl = document.getElementById("tagChips");
+    if(tagChipsEl){
+      tagChipsEl.querySelectorAll("[data-tag]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const t = btn.getAttribute("data-tag");
+          selectedTags = selectedTags.includes(t) ? selectedTags.filter(x=>x!==t) : [...selectedTags, t];
+          advOpen = true;
+          renderApp();
+        });
+      });
+    }
+    const advClearBtn = document.getElementById("advClearBtn");
+    if(advClearBtn){
+      advClearBtn.addEventListener("click", ()=>{
+        filterCategory = "全部"; favOnly = false;
+        selectedRatings = []; selectedTags = []; advOpen = true; renderApp();
+      });
+    }
+  }
+
+  function renderResultsContent(){
+    const resultsArea = document.getElementById("resultsArea");
+    if(!resultsArea) return;
+    const list = filteredBooks();
+    resultsArea.innerHTML = `
+      <div class="count-row">共 ${list.length} 本書${(searchTerm||filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length) ? "（已篩選）" : ""}</div>
+      <div class="grid">
+        ${list.length ? list.map(cardHtml).join("") : emptyStateHtml()}
+      </div>
+    `;
+
+    document.querySelectorAll(".book-card[data-card-id]").forEach(cardEl=>{
+      cardEl.addEventListener("click", ()=>{
+        openViewModal(cardEl.getAttribute("data-card-id"));
+      });
+    });
+    document.querySelectorAll("[data-fav-id]").forEach(btn=>{
+      btn.addEventListener("click", e=>{
+        e.stopPropagation();
+        toggleFavorite(btn.getAttribute("data-fav-id"));
+      });
+    });
+  }
+
+  function emptyStateHtml(){
+    const hasAny = books.length>0;
+    return `
+      <div class="empty">
+        <div class="empty-mark">📖</div>
+        <h3>${hasAny ? "沒有符合條件的書" : "書架還是空的"}</h3>
+        <p>${hasAny ? "試著調整篩選條件或搜尋關鍵字。" : "點擊右上角「新增紀錄」，寫下第一本你讀過的書。"}</p>
+      </div>
+    `;
+  }
+
+  function povRowHtml(name, trait){
+    if(!name) return "";
+    return `
+      <div class="pov-row">
+        <span class="pov-name">${escapeHtml(name)}</span>
+        ${trait ? `<span class="pov-trait">【${escapeHtml(trait)}】</span>` : ""}
+      </div>
+    `;
+  }
+
+  function cardHtml(b){
+    return `
+      <div class="book-card" data-card-id="${b.id}">
+        <div class="spine" style="background:${catColor(b.category)}"></div>
+        <div class="card-top">
+          <div>
+            <p class="card-title serif">${escapeHtml(b.title)}</p>
+            <p class="card-author">${escapeHtml(b.author || "作者未填")}</p>
+          </div>
+          <button class="fav-btn ${b.favorite?'active':''}" data-fav-id="${b.id}" title="收藏最愛">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="${b.favorite?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8"><path d="M12 17.3l-6.16 3.6 1.64-6.99L2 9.24l7.1-.61L12 2l2.9 6.63 7.1.61-5.48 4.67 1.64 6.99z"></path></svg>
+          </button>
+        </div>
+        <div class="card-cat-row">
+          <span class="tag"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:${catColor(b.category)};display:inline-block;"></span>${escapeHtml(b.category)}</span>
+          ${(b.wordCount !== undefined && b.wordCount !== null && b.wordCount !== "") ? `<span class="wordcount-tag">${escapeHtml(String(b.wordCount))}萬字</span>` : ""}
+        </div>
+        ${(b.pov1Name || b.pov2Name) ? `
+          <div class="card-pov">
+            ${povRowHtml(b.pov1Name, b.pov1Trait)}
+            ${povRowHtml(b.pov2Name, b.pov2Trait)}
+          </div>
+        ` : ""}
+        ${(b.tags && b.tags.length) ? `
+          <div class="card-tags">${b.tags.map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}</div>
+        ` : ""}
+        <div class="card-meta">
+          ${starsHtml(b.rating)}
+        </div>
+        <div class="card-hint">點擊查看詳情與心得</div>
+      </div>
+    `;
+  }
+
+  // ---------------- VIEW POPUP (click a card to open) ----------------
+  function openViewModal(id){
+    const b = books.find(x=>x.id===id);
+    if(!b) return;
+
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.innerHTML = `
+      <div class="modal view-modal">
+        <div class="view-modal-top">
+          <div>
+            <p class="card-title serif" style="margin:0;">${escapeHtml(b.title)}</p>
+            <p class="card-author" style="margin-top:4px;">${escapeHtml(b.author || "作者未填")}</p>
+          </div>
+          <div class="view-modal-actions">
+            <button type="button" id="viewEditBtn" title="編輯">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"></path></svg>
+            </button>
+            <button type="button" id="viewDeleteBtn" title="刪除">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path></svg>
+            </button>
+          </div>
+        </div>
+        ${(b.tags && b.tags.length) ? `<div class="card-tags" style="margin-bottom:12px;">${b.tags.map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}</div>` : ""}
+        <div class="view-row"><span class="view-label">評分</span><span class="view-value">${starsHtml(b.rating)}</span></div>
+        ${(b.wordCount !== undefined && b.wordCount !== null && b.wordCount !== "") ? `<div class="view-row"><span class="view-label">字數</span><span class="view-value">${escapeHtml(String(b.wordCount))} 萬字</span></div>` : ""}
+        <div class="view-row"><span class="view-label">日期</span><span class="view-value">${escapeHtml(b.date||"—")}</span></div>
+        <hr class="view-divider">
+        <div class="view-section-label">心得</div>
+        <p class="card-review-full">${escapeHtml(b.review) || "（尚未寫下心得）"}</p>
+        <div class="modal-actions">
+          <button class="btn-primary" id="viewCloseBtn">關閉</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    function close(){ overlay.remove(); }
+    overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
+    overlay.querySelector("#viewCloseBtn").addEventListener("click", close);
+    overlay.querySelector("#viewEditBtn").addEventListener("click", ()=>{ close(); openModal(b.id); });
+    overlay.querySelector("#viewDeleteBtn").addEventListener("click", ()=>{
+      if(confirm("確定要刪除這筆閱讀紀錄嗎？（此動作無法復原）")){
+        close();
+        deleteBook(b.id);
+      }
+    });
+  }
+
+  // ---------------- MODAL ----------------
+  function openModal(id){
+    editingId = id || null;
+    const existing = id ? books.find(b=>b.id===id) : null;
+    const draft = existing ? {...existing} : {
+      title:"", author:"", category:CATEGORIES[0].key, rating:0, date:todayStr(), review:"", favorite:false,
+      pov1Name:"", pov1Trait:"", pov2Name:"", pov2Trait:"", tags:[], wordCount:""
+    };
+    const tagsInputValue = (draft.tags||[]).join(", ");
+
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.innerHTML = `
+      <div class="modal">
+        <h2 class="serif">${existing ? "編輯閱讀紀錄" : "新增閱讀紀錄"}</h2>
+        <div class="field">
+          <label>書名</label>
+          <input type="text" id="mTitle" value="${escapeHtml(draft.title)}" placeholder="輸入書名">
+        </div>
+        <div class="field">
+          <label>作者</label>
+          <input type="text" id="mAuthor" value="${escapeHtml(draft.author)}" placeholder="輸入作者">
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>分類</label>
+            <select id="mCategory">
+              ${CATEGORIES.map(c=>`<option value="${c.key}" ${draft.category===c.key?'selected':''}>${c.key}</option>`).join("")}
+            </select>
+          </div>
+          <div class="field">
+            <label>字數</label>
+            <input type="number" id="mWordCount" value="${draft.wordCount!==undefined && draft.wordCount!==null ? escapeHtml(String(draft.wordCount)) : ''}" placeholder="萬字" step="0.1" min="0">
+          </div>
+        </div>
+        <div class="field">
+          <label>閱讀日期</label>
+          <input type="date" id="mDate" value="${draft.date||todayStr()}">
+        </div>
+        <div class="pov-legend">敘事視角</div>
+        <div class="row-2">
+          <div class="field">
+            <label>第一視角</label>
+            <input type="text" id="mPov1Name" value="${escapeHtml(draft.pov1Name)}" placeholder="人物">
+          </div>
+          <div class="field">
+            <label>屬性</label>
+            <input type="text" id="mPov1Trait" value="${escapeHtml(draft.pov1Trait)}" placeholder="（最多16字符）">
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>第二視角</label>
+            <input type="text" id="mPov2Name" value="${escapeHtml(draft.pov2Name)}" placeholder="人物">
+          </div>
+          <div class="field">
+            <label>屬性</label>
+            <input type="text" id="mPov2Trait" value="${escapeHtml(draft.pov2Trait)}" placeholder="（最多16字符）">
+          </div>
+        </div>
+        <div class="field">
+          <label>作品標籤</label>
+          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="多個標籤以半形逗號分隔。（例：現代, 校園…）">
+          <p class="field-hint">※無固定清單，可自訂新增。</p>
+        </div>
+        <div class="field">
+          <label>評分</label>
+          <div class="star-picker" id="mStars">
+            ${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" class="${n<=draft.rating?'on':''}">★</button>`).join("")}
+          </div>
+        </div>
+        <div class="field">
+          <label>心得</label>
+          <textarea id="mReview" placeholder="寫下你的想法…">${escapeHtml(draft.review)}</textarea>
+        </div>
+        <div class="fav-check">
+          <input type="checkbox" id="mFav" ${draft.favorite?'checked':''}>
+          <label for="mFav">加入最愛收藏</label>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-ghost" id="mCancel">取消</button>
+          <button class="btn-primary" id="mSave">${existing ? "儲存變更" : "新增紀錄"}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    let rating = draft.rating || 0;
+    overlay.querySelectorAll("#mStars button").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        rating = parseInt(btn.getAttribute("data-n"),10);
+        overlay.querySelectorAll("#mStars button").forEach(b2=>{
+          b2.classList.toggle("on", parseInt(b2.getAttribute("data-n"),10) <= rating);
+        });
+      });
+    });
+
+    function close(){ overlay.remove(); editingId = null; }
+    overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
+    overlay.querySelector("#mCancel").addEventListener("click", close);
+
+    overlay.querySelector("#mSave").addEventListener("click", async ()=>{
+      const title = overlay.querySelector("#mTitle").value.trim();
+      if(!title){ overlay.querySelector("#mTitle").focus(); toast("請輸入書名"); return; }
+      const rawTags = overlay.querySelector("#mTags").value;
+      const tags = Array.from(new Set(
+        rawTags.split(",").map(t=>t.trim()).filter(Boolean)
+      ));
+      const rawWordCount = overlay.querySelector("#mWordCount").value.trim();
+      const wordCount = rawWordCount === "" ? null : parseFloat(rawWordCount);
+      const data = {
+        title,
+        author: overlay.querySelector("#mAuthor").value.trim(),
+        category: overlay.querySelector("#mCategory").value,
+        date: overlay.querySelector("#mDate").value || todayStr(),
+        rating,
+        review: overlay.querySelector("#mReview").value.trim(),
+        favorite: overlay.querySelector("#mFav").checked,
+        pov1Name: overlay.querySelector("#mPov1Name").value.trim(),
+        pov1Trait: overlay.querySelector("#mPov1Trait").value.trim(),
+        pov2Name: overlay.querySelector("#mPov2Name").value.trim(),
+        pov2Trait: overlay.querySelector("#mPov2Trait").value.trim(),
+        tags,
+        wordCount,
+      };
+      overlay.remove();
+      await addOrUpdateBook(data);
+    });
+  }
+
+  function render(){
+    if(!currentUser){ renderAuth("login"); return; }
+    renderApp();
+  }
+
+  // ---------------- INIT ----------------
+  function init(){
+    const savedTheme = getLocalTheme();
+    if(savedTheme === "dark" || savedTheme === "light") theme = savedTheme;
+    applyTheme();
+
+    auth.onAuthStateChanged(user=>{
+      if(user){
+        currentUser = user.email;
+        currentUid = user.uid;
+        subscribeBooks(user.uid);
+      } else {
+        currentUser = null;
+        currentUid = null;
+        if(unsubscribeBooksFn){ unsubscribeBooksFn(); unsubscribeBooksFn = null; }
+        books = [];
+      }
+      render();
+    }, err=>{
+      console.error(err);
+      toast("登入狀態讀取失敗，請重新整理頁面");
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
