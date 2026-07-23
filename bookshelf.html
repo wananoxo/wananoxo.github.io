@@ -176,7 +176,6 @@
     padding:0 4px;border-radius:999px;background:var(--accent);color:var(--accent-ink);
     font-size:10px;font-weight:700;
   }
-  /*=====v7.23更新紀錄：篩選器滾動設定=====*/
   .adv-panel{
     position:absolute;top:100%;left:0;right:0;z-index:15;
     max-width:1180px;margin:0 auto;padding:0 28px;
@@ -192,15 +191,6 @@
     background:var(--bg-soft);border:1px solid var(--card-border);border-radius:16px;
     padding:16px 18px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow-hover);
   }
-  /*.adv-panel{
-    max-width:1180px;margin:0 auto;padding:0 28px;
-    max-height:0;overflow:hidden;opacity:0;transition:max-height .22s ease, opacity .18s ease, padding .22s ease;
-  }
-  .adv-panel.open{max-height:400px;opacity:1;padding:14px 28px 4px;}
-  .adv-panel-inner{
-    background:var(--bg-soft);border:1px solid var(--card-border);border-radius:16px;
-    padding:16px 18px;display:flex;flex-direction:column;gap:14px;
-  }*/
   .adv-row{display:flex;flex-direction:column;gap:8px;}
   .adv-row-label{font-size:12px;font-weight:600;color:var(--ink-soft);}
   .adv-chips{display:flex;flex-wrap:wrap;gap:8px;}
@@ -584,7 +574,7 @@
             ${mode==="login" ? "還沒有帳號？" : "已經有帳號了？"}
             <button id="authToggle">${mode==="login" ? "註冊新帳號" : "直接登入"}</button>
           </div>
-          <p class="auth-note">※網站為AI製作，為保障您的資料安全，請勿使用重要密碼。</p>
+          <p class="auth-note">※為保障您的資料安全，請勿使用重要密碼，並妥善保管您的資料。</p>
         </div>
       </div>
     `;
@@ -648,8 +638,6 @@
     // <header>; the collapsible filter panel lives in its own normal-flow
     // container below it, so it scrolls away with the page instead of staying pinned.
     if(!document.getElementById("headerEl")){
-      /*=====v7.23更新記錄：拿掉獨立的filterPanelArea容器=====*/
-      /*app.innerHTML = `<header id="headerEl"></header><div id="filterPanelArea"></div><main><div id="resultsArea"></div></main>`;*/
       app.innerHTML = `<header id="headerEl"></header><main><div id="resultsArea"></div></main>`;
     }
     renderHeaderContent();
@@ -686,7 +674,7 @@
           </button>
         </div>
       </div>
-      <div id="filterPanelArea"></div> /*===v7.23更新紀錄===*/
+      <div id="filterPanelArea"></div>
     `;
 
     const searchInput = document.getElementById("searchInput");
@@ -704,14 +692,12 @@
     document.getElementById("openAdd").addEventListener("click", ()=>openModal());
     document.getElementById("themeToggle").addEventListener("click", toggleTheme);
     document.getElementById("logoutBtn").addEventListener("click", handleLogout);
-    /*=====v7.23更新紀錄：篩選鈕點擊阻止事件冒泡=====*/
-    /*document.getElementById("advToggleBtn").addEventListener("click", ()=>{ advOpen = !advOpen; renderApp(); });*/
     document.getElementById("advToggleBtn").addEventListener("click", (e)=>{ e.stopPropagation(); advOpen = !advOpen; renderApp(); });
   }
 
   function renderFilterPanel(){
     const panelArea = document.getElementById("filterPanelArea");
-    panelArea.addEventListener("click", e=>{ e.stopPropagation(); });  /*===v7.23更新紀錄===*/
+    panelArea.addEventListener("click", e=>{ e.stopPropagation(); }); 
     panelArea.innerHTML = `
       <div class="adv-panel ${advOpen?'open':''}">
         <div class="adv-panel-inner">
@@ -789,7 +775,7 @@
     if(!resultsArea) return;
     const list = filteredBooks();
     resultsArea.innerHTML = `
-      <div class="count-row">共 ${list.length} 本書${(searchTerm||filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length) ? "（已篩選）" : ""}</div>
+      <div class="count-row">累計閱讀 ${list.length} 本書${(searchTerm||filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length) ? "（已篩選）" : ""}</div>
       <div class="grid">
         ${list.length ? list.map(cardHtml).join("") : emptyStateHtml()}
       </div>
@@ -813,7 +799,7 @@
     return `
       <div class="empty">
         <div class="empty-mark">📖</div>
-        <h3>${hasAny ? "沒有符合條件的書" : "書架還是空的"}</h3>
+        <h3>${hasAny ? "沒有符合條件的書" : "書櫃還是空的"}</h3>
         <p>${hasAny ? "試著調整篩選條件或搜尋關鍵字。" : "點擊右上角「新增紀錄」，寫下第一本你讀過的書。"}</p>
       </div>
     `;
@@ -836,7 +822,7 @@
         <div class="card-top">
           <div>
             <p class="card-title serif">${escapeHtml(b.title)}</p>
-            <p class="card-author">${escapeHtml(b.author || "作者未填")}</p>
+            <p class="card-author">${escapeHtml(b.author || "（未知）")}</p>
           </div>
           <button class="fav-btn ${b.favorite?'active':''}" data-fav-id="${b.id}" title="收藏最愛">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="${b.favorite?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8"><path d="M12 17.3l-6.16 3.6 1.64-6.99L2 9.24l7.1-.61L12 2l2.9 6.63 7.1.61-5.48 4.67 1.64 6.99z"></path></svg>
@@ -905,7 +891,7 @@
     overlay.querySelector("#viewCloseBtn").addEventListener("click", close);
     overlay.querySelector("#viewEditBtn").addEventListener("click", ()=>{ close(); openModal(b.id); });
     overlay.querySelector("#viewDeleteBtn").addEventListener("click", ()=>{
-      if(confirm("確定要刪除這筆閱讀紀錄嗎？（此動作無法復原）")){
+      if(confirm("確定要刪除紀錄嗎？（此動作無法復原）")){
         close();
         deleteBook(b.id);
       }
@@ -954,28 +940,28 @@
         <div class="pov-legend">敘事視角</div>
         <div class="row-2">
           <div class="field">
-            <label>第一視角</label>
+            <label>主視角</label>
             <input type="text" id="mPov1Name" value="${escapeHtml(draft.pov1Name)}" placeholder="人物">
           </div>
           <div class="field">
             <label>屬性</label>
-            <input type="text" id="mPov1Trait" value="${escapeHtml(draft.pov1Trait)}" placeholder="（性別/屬性，最多16字符）">
+            <input type="text" id="mPov1Trait" value="${escapeHtml(draft.pov1Trait)}" placeholder="（最多21字符）">
           </div>
         </div>
         <div class="row-2">
           <div class="field">
-            <label>第二視角</label>
+            <label>副視角</label>
             <input type="text" id="mPov2Name" value="${escapeHtml(draft.pov2Name)}" placeholder="人物">
           </div>
           <div class="field">
             <label>屬性</label>
-            <input type="text" id="mPov2Trait" value="${escapeHtml(draft.pov2Trait)}" placeholder="（性別/屬性，最多16字符）">
+            <input type="text" id="mPov2Trait" value="${escapeHtml(draft.pov2Trait)}" placeholder="（最多21字符）">
           </div>
         </div>
         <div class="field">
           <label>作品標籤</label>
-          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="多個標籤以半形逗號分隔。（例：現代, 校園…）">
-          <p class="field-hint">※無固定清單，可自訂新增。</p>
+          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="例：現代, 校園…">
+          <p class="field-hint">Tips: 標籤無固定清單，可隨意自訂新增；輸入多個標籤需以半形逗號分隔。</p>
         </div>
         <div class="field">
           <label>評分</label>
@@ -1070,7 +1056,6 @@
       toast("登入狀態讀取失敗，請重新整理頁面");
     });
   }
-/*=====v7.23更新紀錄=====*/
   document.addEventListener("click", ()=>{
   if(advOpen){ advOpen = false; renderApp(); }
 });
