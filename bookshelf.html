@@ -176,7 +176,23 @@
     padding:0 4px;border-radius:999px;background:var(--accent);color:var(--accent-ink);
     font-size:10px;font-weight:700;
   }
+  /*=====v7.23更新紀錄：篩選器滾動設定=====*/
   .adv-panel{
+    position:absolute;top:100%;left:0;right:0;z-index:15;
+    max-width:1180px;margin:0 auto;padding:0 28px;
+    max-height:0;overflow:hidden;opacity:0;pointer-events:none;
+    transform:translateY(-6px);
+    transition:max-height .22s ease, opacity .18s ease, padding .22s ease, transform .18s ease;
+  }
+  .adv-panel.open{
+    max-height:min(72vh, 640px);overflow-y:auto;opacity:1;pointer-events:auto;
+    padding:14px 28px 20px;transform:translateY(0);
+  }
+  .adv-panel-inner{
+    background:var(--bg-soft);border:1px solid var(--card-border);border-radius:16px;
+    padding:16px 18px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow-hover);
+  }
+  /*.adv-panel{
     max-width:1180px;margin:0 auto;padding:0 28px;
     max-height:0;overflow:hidden;opacity:0;transition:max-height .22s ease, opacity .18s ease, padding .22s ease;
   }
@@ -184,7 +200,7 @@
   .adv-panel-inner{
     background:var(--bg-soft);border:1px solid var(--card-border);border-radius:16px;
     padding:16px 18px;display:flex;flex-direction:column;gap:14px;
-  }
+  }*/
   .adv-row{display:flex;flex-direction:column;gap:8px;}
   .adv-row-label{font-size:12px;font-weight:600;color:var(--ink-soft);}
   .adv-chips{display:flex;flex-wrap:wrap;gap:8px;}
@@ -242,7 +258,7 @@
   }
   .pov-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
   .pov-row .pov-name{flex:1;min-width:0;font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .pov-row .pov-trait{flex-shrink:0;max-width:55%;font-size:10.5px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pov-row .pov-trait{flex-shrink:0;max-width:70%;font-size:10.5px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .card-pov b{color:var(--ink);font-weight:600;}
   .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
   .card-tags .tag-pill{
@@ -632,7 +648,9 @@
     // <header>; the collapsible filter panel lives in its own normal-flow
     // container below it, so it scrolls away with the page instead of staying pinned.
     if(!document.getElementById("headerEl")){
-      app.innerHTML = `<header id="headerEl"></header><div id="filterPanelArea"></div><main><div id="resultsArea"></div></main>`;
+      /*=====v7.23更新記錄：拿掉獨立的filterPanelArea容器=====*/
+      /*app.innerHTML = `<header id="headerEl"></header><div id="filterPanelArea"></div><main><div id="resultsArea"></div></main>`;*/
+      app.innerHTML = `<header id="headerEl"></header><main><div id="resultsArea"></div></main>`;
     }
     renderHeaderContent();
     renderFilterPanel();
@@ -668,6 +686,7 @@
           </button>
         </div>
       </div>
+      <div id="filterPanelArea"></div> /*===v7.23更新紀錄===*/
     `;
 
     const searchInput = document.getElementById("searchInput");
@@ -685,11 +704,14 @@
     document.getElementById("openAdd").addEventListener("click", ()=>openModal());
     document.getElementById("themeToggle").addEventListener("click", toggleTheme);
     document.getElementById("logoutBtn").addEventListener("click", handleLogout);
-    document.getElementById("advToggleBtn").addEventListener("click", ()=>{ advOpen = !advOpen; renderApp(); });
+    /*=====v7.23更新紀錄：篩選鈕點擊阻止事件冒泡=====*/
+    /*document.getElementById("advToggleBtn").addEventListener("click", ()=>{ advOpen = !advOpen; renderApp(); });*/
+    document.getElementById("advToggleBtn").addEventListener("click", (e)=>{ e.stopPropagation(); advOpen = !advOpen; renderApp(); });
   }
 
   function renderFilterPanel(){
     const panelArea = document.getElementById("filterPanelArea");
+    panelArea.addEventListener("click", e=>{ e.stopPropagation(); });  /*===v7.23更新紀錄===*/
     panelArea.innerHTML = `
       <div class="adv-panel ${advOpen?'open':''}">
         <div class="adv-panel-inner">
@@ -802,7 +824,7 @@
     return `
       <div class="pov-row">
         <span class="pov-name">${escapeHtml(name)}</span>
-        ${trait ? `<span class="pov-trait">【${escapeHtml(trait)}】</span>` : ""}
+        ${trait ? `<span class="pov-trait">${escapeHtml(trait)}</span>` : ""}
       </div>
     `;
   }
@@ -1048,6 +1070,10 @@
       toast("登入狀態讀取失敗，請重新整理頁面");
     });
   }
+/*=====v7.23更新紀錄=====*/
+  document.addEventListener("click", ()=>{
+  if(advOpen){ advOpen = false; renderApp(); }
+});
 
   init();
 })();
