@@ -31,6 +31,7 @@
     --spine-quad:#e0be70;
     --spine-male:#004469;
     --spine-female:#7f0020;
+    --spine-classic:#8B6F47;
   }
   [data-theme="dark"]{
     --bg:#211E1A;
@@ -52,6 +53,7 @@
     --spine-quad:#B98A32;
     --spine-male:#5C6F94;
     --spine-female:#7f0020;
+    --spine-classic:#79603F;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -156,10 +158,6 @@
   .user-chip span{font-weight:600;color:var(--ink);}
 
   /* ---------- filter bar ---------- */
-  .filter-bar{
-    max-width:1180px;margin:0 auto;padding:16px 28px 0;
-    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  }
   .pill{
     padding:7px 15px;border-radius:999px;border:1px solid var(--card-border);
     background:var(--card);color:var(--ink-soft);font-size:12.5px;font-weight:500;
@@ -168,7 +166,7 @@
   .pill .dot{width:8px;height:8px;border-radius:50%;}
   .pill.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
   .pill:hover{box-shadow:var(--shadow);}
-  .fav-toggle{margin-left:auto;}
+  .fav-toggle{}
   .fav-toggle.active{background:var(--gold);color:#3A2E0E;border-color:var(--gold);}
   .adv-toggle{display:flex;align-items:center;gap:6px;}
   .adv-toggle svg{transition:transform .15s ease;}
@@ -179,13 +177,19 @@
     font-size:10px;font-weight:700;
   }
   .adv-panel{
+    position:absolute;top:100%;left:0;right:0;z-index:15;
     max-width:1180px;margin:0 auto;padding:0 28px;
-    max-height:0;overflow:hidden;opacity:0;transition:max-height .22s ease, opacity .18s ease, padding .22s ease;
+    max-height:0;overflow:hidden;opacity:0;pointer-events:none;
+    transform:translateY(-6px);
+    transition:max-height .22s ease, opacity .18s ease, padding .22s ease, transform .18s ease;
   }
-  .adv-panel.open{max-height:400px;opacity:1;padding:14px 28px 4px;}
+  .adv-panel.open{
+    max-height:min(72vh, 640px);overflow-y:auto;opacity:1;pointer-events:auto;
+    padding:14px 28px 20px;transform:translateY(0);
+  }
   .adv-panel-inner{
     background:var(--bg-soft);border:1px solid var(--card-border);border-radius:16px;
-    padding:16px 18px;display:flex;flex-direction:column;gap:14px;
+    padding:16px 18px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow-hover);
   }
   .adv-row{display:flex;flex-direction:column;gap:8px;}
   .adv-row-label{font-size:12px;font-weight:600;color:var(--ink-soft);}
@@ -195,7 +199,6 @@
     background:var(--card);color:var(--ink-soft);font-size:12px;font-weight:500;transition:all .15s ease;
   }
   .chip.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
-  /*.chip.active.tag-chip{background:var(--gold);border-color:var(--gold);color:#3A2E0E;}*/
   .adv-empty-note{font-size:11.5px;color:var(--ink-faint);}
   .adv-clear{
     align-self:flex-start;background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;padding:2px 0;
@@ -206,8 +209,10 @@
   main{max-width:1180px;margin:0 auto;padding:22px 28px 60px;width:100%;flex:1;}
   .count-row{font-size:12.5px;color:var(--ink-faint);margin-bottom:16px;}
   .grid{
-    display:grid;grid-template-columns:repeat(auto-fill, minmax(250px,1fr));gap:18px;
+    display:grid;grid-template-columns:repeat(3, 1fr);gap:18px;
   }
+  @media (max-width:980px){ .grid{grid-template-columns:repeat(2, 1fr);} }
+  @media (max-width:640px){ .grid{grid-template-columns:1fr;} }
   .book-card{
     position:relative;background:var(--card);border:1px solid var(--card-border);
     border-radius:var(--radius);padding:20px 18px 16px 24px;box-shadow:var(--shadow);
@@ -242,16 +247,14 @@
     display:flex;flex-direction:column;gap:2px;
   }
   .pov-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
-  .pov-row .pov-name{flex:1;min-width:0;font-size:12.5px;font-weight:600;color:var(--ink);}
-  .pov-row .pov-trait{flex-shrink:0;font-size:10.5px;color:var(--ink-faint);}
+  .pov-row .pov-name{flex:1;min-width:0;font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pov-row .pov-trait{flex-shrink:0;max-width:70%;font-size:10.5px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .card-pov b{color:var(--ink);font-weight:600;}
   .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
   .card-tags .tag-pill{
     padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:500;
     background:var(--bg-soft);color:var(--ink-soft);
   }
-  .card-expand{margin-top:12px;padding-top:12px;border-top:1px solid var(--card-border);}
-  .card-date-full{font-size:11.5px;color:var(--ink-faint);margin-bottom:8px;}
   .card-review-full{
     font-size:12.5px;color:var(--ink-soft);line-height:1.75;white-space:pre-wrap;margin:0;
   }
@@ -259,15 +262,21 @@
     font-size:11px;color:var(--ink-faint);text-align:center;margin-top:12px;padding-top:10px;
     border-top:1px dashed var(--card-border);
   }
-  .card-actions{
-    display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--card-border);
+
+  /* ---------- view popup (click a card) ---------- */
+  .view-modal-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;}
+  .view-modal-actions{display:flex;gap:6px;flex-shrink:0;}
+  .view-modal-actions button{
+    width:32px;height:32px;border-radius:10px;border:1px solid var(--card-border);background:var(--bg-soft);
+    color:var(--ink-soft);display:flex;align-items:center;justify-content:center;
+    transition:background .15s ease,color .15s ease;
   }
-  .card-actions button{
-    flex:1;background:none;border:none;font-size:12px;color:var(--ink-soft);padding:6px;border-radius:8px;
-    display:flex;align-items:center;justify-content:center;gap:5px;transition:background .15s ease,color .15s ease;
-  }
-  .card-actions button:hover{background:var(--bg-soft);color:var(--ink);}
-  .card-actions .danger:hover{color:var(--accent);}
+  .view-modal-actions button:hover{background:var(--accent-soft);color:var(--accent);}
+  .view-row{display:flex;align-items:center;gap:14px;font-size:13px;padding:5px 0;}
+  .view-row .view-label{width:56px;flex-shrink:0;color:var(--accent);font-weight:600;}
+  .view-row .view-value{color:var(--ink);}
+  .view-divider{border:none;border-top:1px solid var(--card-border);margin:14px 0;}
+  .view-section-label{font-size:12.5px;font-weight:600;color:var(--accent);margin-bottom:8px;}
 
   /* ---------- empty state ---------- */
   .empty{
@@ -336,7 +345,6 @@
 
   @media (max-width:560px){
     header{padding:14px 16px;}
-    .filter-bar{padding:14px 16px 0;}
     main{padding:18px 16px 50px;}
     .row-2{grid-template-columns:1fr;}
     .search-wrap{order:3;max-width:none;flex-basis:100%;}
@@ -372,11 +380,12 @@
 
   const CATEGORIES = [
     { key:"言情", color:"var(--spine-romance)", activeText:"#fff" },
-    { key:"耽美", color:"var(--spine-bl)", activeText:"#2A3B4D" },
+    { key:"耽美", color:"var(--spine-bl)", activeText:"#fff" },
     { key:"百合", color:"var(--spine-gl)", activeText:"#fff" },
-    { key:"四愛", color:"var(--spine-quad)", activeText:"#3A2E0E" },
+    { key:"四愛", color:"var(--spine-quad)", activeText:"#fff" },
     { key:"男主", color:"var(--spine-male)", activeText:"#fff" },
     { key:"女主", color:"var(--spine-female)", activeText:"#fff" },
+    { key:"經典", color:"var(--spine-classic)", activeText:"#fff" },
   ];
   const catColor = k => (CATEGORIES.find(c=>c.key===k)||{}).color || "var(--ink-faint)";
 
@@ -392,7 +401,6 @@
   let advOpen = false;
   let selectedRatings = [];   // e.g. [4,5]
   let selectedTags = [];      // e.g. ["校園","甜文"]
-  let expandedCardIds = new Set(); // which cards are currently expanded (click-to-open)
   let isComposing = false;    // true while an IME (e.g. 注音) composition is in progress
 
   const app = document.getElementById("app");
@@ -496,11 +504,8 @@
     if(unsubscribeBooksFn){ unsubscribeBooksFn(); unsubscribeBooksFn = null; }
     unsubscribeBooksFn = db.collection("books").where("uid","==",uid)
       .onSnapshot(snapshot=>{
-        books = snapshot.docs.map(d=>{
-          const data = d.data();
-          const createdAtMs = data.createdAt && data.createdAt.toMillis ? data.createdAt.toMillis() : 0;
-          return { id: d.id, ...data, _createdAtMs: createdAtMs };
-        }).sort((a,b)=> b._createdAtMs - a._createdAtMs);
+        books = snapshot.docs.map(d=>({ id: d.id, ...d.data() }))
+          .sort((a,b)=> (b.date||"").localeCompare(a.date||""));
         render();
       }, err=>{
         console.error(err);
@@ -603,9 +608,9 @@
 
   // ---------------- RENDER: MAIN APP ----------------
   function allTags(){
-    const set = new Set();
-    books.forEach(b => (b.tags||[]).forEach(t => set.add(t)));
-    return Array.from(set).sort((a,b)=>a.localeCompare(b,'zh-Hant'));
+    const counts = {};
+    books.forEach(b => (b.tags||[]).forEach(t => { counts[t] = (counts[t]||0) + 1; }));
+    return Object.keys(counts).sort((a,b)=> counts[b]-counts[a] || a.localeCompare(b,'zh-Hant'));
   }
 
   function filteredBooks(){
@@ -626,18 +631,23 @@
   }
 
   function renderApp(){
-    // Build the outer shell only once; afterwards we just refresh its two inner
+    // Build the outer shell only once; afterwards we just refresh its inner
     // regions independently so the search <input> DOM node is never destroyed
     // by typing (destroying it mid-keystroke breaks IME composition, e.g. 注音).
+    // Only the first row (title/search/filter/add/user) is inside the sticky
+    // <header>; the collapsible filter panel lives in its own normal-flow
+    // container below it, so it scrolls away with the page instead of staying pinned.
     if(!document.getElementById("headerEl")){
       app.innerHTML = `<header id="headerEl"></header><main><div id="resultsArea"></div></main>`;
     }
     renderHeaderContent();
+    renderFilterPanel();
     renderResultsContent();
   }
 
   function renderHeaderContent(){
     const headerEl = document.getElementById("headerEl");
+    const advCount = (filterCategory!=="全部"?1:0) + (favOnly?1:0) + selectedRatings.length + selectedTags.length;
     headerEl.innerHTML = `
       <div class="header-row">
         <div class="brand">
@@ -650,7 +660,7 @@
         </div>
         <button class="pill adv-toggle ${advOpen?'open':''}" id="advToggleBtn">
           篩選
-          ${(selectedRatings.length+selectedTags.length) ? `<span class="adv-badge">${selectedRatings.length+selectedTags.length}</span>` : ""}
+          ${advCount ? `<span class="adv-badge">${advCount}</span>` : ""}
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
         <button class="add-btn" id="openAdd">
@@ -664,37 +674,7 @@
           </button>
         </div>
       </div>
-      <div class="filter-bar">
-        <button class="pill ${filterCategory==='全部'?'active':''}" data-cat="全部">全部</button>
-        ${CATEGORIES.map(c=>`
-          <button class="pill ${filterCategory===c.key?'active':''}" data-cat="${c.key}"
-            ${filterCategory===c.key ? `style="background:${c.color};border-color:${c.color};color:${c.activeText};"` : ""}>${c.key}</button>
-        `).join("")}
-        <button class="pill fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 最愛</button>
-      </div>
-      <div class="adv-panel ${advOpen?'open':''}">
-        <div class="adv-panel-inner">
-          <div class="adv-row">
-            <div class="adv-row-label">評分篩選</div>
-            <div class="adv-chips" id="ratingChips">
-              ${[5,4,3,2,1].map(n=>`
-                <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${'★'.repeat(n)}</button>
-              `).join("")}
-            </div>
-          </div>
-          <div class="adv-row">
-            <div class="adv-row-label">標籤篩選</div>
-            ${allTags().length ? `
-              <div class="adv-chips" id="tagChips">
-                ${allTags().map(t=>`
-                  <button type="button" class="chip /*tag-chip*/ ${selectedTags.includes(t)?'active':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>
-                `).join("")}
-              </div>
-            ` : `<div class="adv-empty-note">還沒有任何標籤，新增閱讀紀錄時可以自訂標籤。</div>`}
-          </div>
-          ${(selectedRatings.length||selectedTags.length) ? `<button class="adv-clear" id="advClearBtn">清除篩選條件</button>` : ""}
-        </div>
-      </div>
+      <div id="filterPanelArea"></div>
     `;
 
     const searchInput = document.getElementById("searchInput");
@@ -712,8 +692,53 @@
     document.getElementById("openAdd").addEventListener("click", ()=>openModal());
     document.getElementById("themeToggle").addEventListener("click", toggleTheme);
     document.getElementById("logoutBtn").addEventListener("click", handleLogout);
+    document.getElementById("advToggleBtn").addEventListener("click", (e)=>{ e.stopPropagation(); advOpen = !advOpen; renderApp(); });
+  }
+
+  function renderFilterPanel(){
+    const panelArea = document.getElementById("filterPanelArea");
+    panelArea.addEventListener("click", e=>{ e.stopPropagation(); });
+    panelArea.innerHTML = `
+      <div class="adv-panel ${advOpen?'open':''}">
+        <div class="adv-panel-inner">
+          <div class="adv-row">
+            <div class="adv-row-label">分類篩選</div>
+            <div class="adv-chips" id="categoryChips">
+              <button type="button" class="chip ${filterCategory==='全部'?'active':''}" data-cat="全部">全部</button>
+              ${CATEGORIES.map(c=>`
+                <button type="button" class="chip ${filterCategory===c.key?'active':''}" data-cat="${c.key}"
+                  ${filterCategory===c.key ? `style="background:${c.color};border-color:${c.color};color:${c.activeText};"` : ""}>${c.key}</button>
+              `).join("")}
+              <button type="button" class="chip fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 最愛</button>
+            </div>
+          </div>
+          <div class="adv-row">
+            <div class="adv-row-label">評分篩選</div>
+            <div class="adv-chips" id="ratingChips">
+              ${[5,4,3,2,1].map(n=>`
+                <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${'★'.repeat(n)}</button>
+              `).join("")}
+            </div>
+          </div>
+          <div class="adv-row">
+            <div class="adv-row-label">標籤篩選</div>
+            ${allTags().length ? `
+              <div class="adv-chips" id="tagChips">
+                ${allTags().map(t=>`
+                  <button type="button" class="chip ${selectedTags.includes(t)?'active':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>
+                `).join("")}
+              </div>
+            ` : `<div class="adv-empty-note">還沒有任何標籤，新增閱讀紀錄時可以自訂標籤。</div>`}
+          </div>
+          ${(filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length) ? `<button class="adv-clear" id="advClearBtn">清除篩選條件</button>` : ""}
+        </div>
+      </div>
+    `;
+
     document.getElementById("favToggleBtn").addEventListener("click", ()=>{ favOnly = !favOnly; renderApp(); });
-    document.getElementById("advToggleBtn").addEventListener("click", ()=>{ advOpen = !advOpen; renderApp(); });
+    document.querySelectorAll("#categoryChips [data-cat]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{ filterCategory = btn.getAttribute("data-cat"); renderApp(); });
+    });
     const ratingChipsEl = document.getElementById("ratingChips");
     if(ratingChipsEl){
       ratingChipsEl.querySelectorAll("[data-rating]").forEach(btn=>{
@@ -739,12 +764,10 @@
     const advClearBtn = document.getElementById("advClearBtn");
     if(advClearBtn){
       advClearBtn.addEventListener("click", ()=>{
+        filterCategory = "全部"; favOnly = false;
         selectedRatings = []; selectedTags = []; advOpen = true; renderApp();
       });
     }
-    document.querySelectorAll(".pill[data-cat]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{ filterCategory = btn.getAttribute("data-cat"); renderApp(); });
-    });
   }
 
   function renderResultsContent(){
@@ -760,29 +783,13 @@
 
     document.querySelectorAll(".book-card[data-card-id]").forEach(cardEl=>{
       cardEl.addEventListener("click", ()=>{
-        const id = cardEl.getAttribute("data-card-id");
-        if(expandedCardIds.has(id)) expandedCardIds.delete(id); else expandedCardIds.add(id);
-        renderResultsContent();
+        openViewModal(cardEl.getAttribute("data-card-id"));
       });
     });
     document.querySelectorAll("[data-fav-id]").forEach(btn=>{
       btn.addEventListener("click", e=>{
         e.stopPropagation();
         toggleFavorite(btn.getAttribute("data-fav-id"));
-      });
-    });
-    document.querySelectorAll("[data-edit-id]").forEach(btn=>{
-      btn.addEventListener("click", e=>{
-        e.stopPropagation();
-        openModal(btn.getAttribute("data-edit-id"));
-      });
-    });
-    document.querySelectorAll("[data-del-id]").forEach(btn=>{
-      btn.addEventListener("click", e=>{
-        e.stopPropagation();
-        if(confirm("確定要刪除讀紀錄嗎？（此動作無法復原）")){
-          deleteBook(btn.getAttribute("data-del-id"));
-        }
       });
     });
   }
@@ -803,13 +810,12 @@
     return `
       <div class="pov-row">
         <span class="pov-name">${escapeHtml(name)}</span>
-        ${trait ? `<span class="pov-trait">【${escapeHtml(trait)}】</span>` : ""}
+        ${trait ? `<span class="pov-trait">${escapeHtml(trait)}</span>` : ""}
       </div>
     `;
   }
 
   function cardHtml(b){
-    const isOpen = expandedCardIds.has(b.id);
     return `
       <div class="book-card" data-card-id="${b.id}">
         <div class="spine" style="background:${catColor(b.category)}"></div>
@@ -838,26 +844,58 @@
         <div class="card-meta">
           ${starsHtml(b.rating)}
         </div>
-        ${isOpen ? `
-          <div class="card-expand">
-            <div class="card-date-full">閱讀日期：${escapeHtml(b.date||"—")}</div>
-            <p class="card-review-full">${escapeHtml(b.review) || "（尚未寫下心得）"}</p>
-          </div>
-          <div class="card-actions">
-            <button data-edit-id="${b.id}">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"></path></svg>
-              編輯
-            </button>
-            <button class="danger" data-del-id="${b.id}">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path></svg>
-              刪除
-            </button>
-          </div>
-        ` : `
-          <div class="card-hint">點擊回顧心得</div>
-        `}
+        <div class="card-hint">點擊查看詳情與心得</div>
       </div>
     `;
+  }
+
+  // ---------------- VIEW POPUP (click a card to open) ----------------
+  function openViewModal(id){
+    const b = books.find(x=>x.id===id);
+    if(!b) return;
+
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.innerHTML = `
+      <div class="modal view-modal">
+        <div class="view-modal-top">
+          <div>
+            <p class="card-title serif" style="margin:0;">${escapeHtml(b.title)}</p>
+            <p class="card-author" style="margin-top:4px;">${escapeHtml(b.author || "作者未填")}</p>
+          </div>
+          <div class="view-modal-actions">
+            <button type="button" id="viewEditBtn" title="編輯">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"></path></svg>
+            </button>
+            <button type="button" id="viewDeleteBtn" title="刪除">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path></svg>
+            </button>
+          </div>
+        </div>
+        ${(b.tags && b.tags.length) ? `<div class="card-tags" style="margin-bottom:12px;">${b.tags.map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}</div>` : ""}
+        <div class="view-row"><span class="view-label">評分</span><span class="view-value">${starsHtml(b.rating)}</span></div>
+        ${(b.wordCount !== undefined && b.wordCount !== null && b.wordCount !== "") ? `<div class="view-row"><span class="view-label">字數</span><span class="view-value">${escapeHtml(String(b.wordCount))} 萬字</span></div>` : ""}
+        <div class="view-row"><span class="view-label">日期</span><span class="view-value">${escapeHtml(b.date||"—")}</span></div>
+        <hr class="view-divider">
+        <div class="view-section-label">心得</div>
+        <p class="card-review-full">${escapeHtml(b.review) || "（尚未寫下心得）"}</p>
+        <div class="modal-actions">
+          <button class="btn-primary" id="viewCloseBtn">關閉</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    function close(){ overlay.remove(); }
+    overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
+    overlay.querySelector("#viewCloseBtn").addEventListener("click", close);
+    overlay.querySelector("#viewEditBtn").addEventListener("click", ()=>{ close(); openModal(b.id); });
+    overlay.querySelector("#viewDeleteBtn").addEventListener("click", ()=>{
+      if(confirm("確定要刪除這筆閱讀紀錄嗎？（此動作無法復原）")){
+        close();
+        deleteBook(b.id);
+      }
+    });
   }
 
   // ---------------- MODAL ----------------
@@ -1018,6 +1056,12 @@
       toast("登入狀態讀取失敗，請重新整理頁面");
     });
   }
+
+  // Clicking anywhere outside the floating filter panel closes it.
+  // (Clicks inside the panel or on its own toggle button never reach here — see stopPropagation above.)
+  document.addEventListener("click", ()=>{
+    if(advOpen){ advOpen = false; renderApp(); }
+  });
 
   init();
 })();
