@@ -346,7 +346,7 @@
 </style>
 </head>
 <body>
-<div id="app"><div class="loading-screen"><div class="spinner"></div>正在載入書架…</div></div>
+<div id="app"><div class="loading-screen"><div class="spinner"></div>正在載入書櫃…</div></div>
 
 <script>
   // ====================================================================
@@ -553,7 +553,7 @@
       <div class="center-screen">
         <div class="auth-card">
           <p class="serif auth-title">晚安。</p>
-          <p class="auth-sub">${mode==="login" ? "登入帳號，回到你的個人書櫃。" : "建立帳號，紀錄你讀過的每一本書。"}</p>
+          <p class="auth-sub">${mode==="login" ? "登入帳號，回到你的書櫃。" : "建立帳號，紀錄你讀過的每一本書。"}</p>
           <div class="auth-error" id="authErr" style="display:none;"></div>
           <div class="field">
             <label>Email</label>
@@ -650,7 +650,7 @@
         </div>
         <div class="search-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="searchInput" placeholder="搜尋書名或作者…" value="${escapeHtml(searchTerm)}">
+          <input type="text" id="searchInput" placeholder="搜尋書名或作者" value="${escapeHtml(searchTerm)}">
         </div>
         <button class="pill adv-toggle ${advOpen?'open':''}" id="advToggleBtn">
           篩選
@@ -836,7 +836,7 @@
         <div class="card-meta">
           ${starsHtml(b.rating)}
         </div>
-        <div class="card-hint">點擊查看詳情與心得</div>
+        <div class="card-hint">回顧心得</div>
       </div>
     `;
   }
@@ -870,7 +870,7 @@
         <div class="view-row"><span class="view-label">日期</span><span class="view-value">${escapeHtml(b.date||"—")}</span></div>
         <hr class="view-divider">
         <div class="view-section-label">心得</div>
-        <p class="card-review-full">${escapeHtml(b.review) || "（尚未寫下心得）"}</p>
+        <p class="card-review-full">${escapeHtml(b.review) || "（暫無心得）"}</p>
         <div class="modal-actions">
           <button class="btn-primary" id="viewCloseBtn">關閉</button>
         </div>
@@ -907,11 +907,11 @@
         <h2 class="serif">${existing ? "編輯閱讀紀錄" : "新增閱讀紀錄"}</h2>
         <div class="field">
           <label>書名</label>
-          <input type="text" id="mTitle" value="${escapeHtml(draft.title)}" placeholder="輸入書名">
+          <input type="text" id="mTitle" value="${escapeHtml(draft.title)}" placeholder="書名">
         </div>
         <div class="field">
           <label>作者</label>
-          <input type="text" id="mAuthor" value="${escapeHtml(draft.author)}" placeholder="輸入作者">
+          <input type="text" id="mAuthor" value="${escapeHtml(draft.author)}" placeholder="作者">
         </div>
         <div class="row-2">
           <div class="field">
@@ -937,7 +937,7 @@
           </div>
           <div class="field">
             <label>屬性</label>
-            <input type="text" id="mPov1Trait" value="${escapeHtml(draft.pov1Trait)}" placeholder="（最多16字符）">
+            <input type="text" id="mPov1Trait" value="${escapeHtml(draft.pov1Trait)}" placeholder="（性別/屬性，最多16字符）">
           </div>
         </div>
         <div class="row-2">
@@ -947,7 +947,7 @@
           </div>
           <div class="field">
             <label>屬性</label>
-            <input type="text" id="mPov2Trait" value="${escapeHtml(draft.pov2Trait)}" placeholder="（最多16字符）">
+            <input type="text" id="mPov2Trait" value="${escapeHtml(draft.pov2Trait)}" placeholder="（性別/屬性，最多16字符）">
           </div>
         </div>
         <div class="field">
@@ -967,7 +967,7 @@
         </div>
         <div class="fav-check">
           <input type="checkbox" id="mFav" ${draft.favorite?'checked':''}>
-          <label for="mFav">加入最愛收藏</label>
+          <label for="mFav">加入最愛</label>
         </div>
         <div class="modal-actions">
           <button class="btn-ghost" id="mCancel">取消</button>
