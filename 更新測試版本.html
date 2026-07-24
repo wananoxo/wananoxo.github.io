@@ -31,7 +31,7 @@
     --spine-quad:#e0be70;
     --spine-male:#004469;
     --spine-female:#7f0020;
-    --spine-classic:#8B6F47;
+    --spine-classic:#bb8b6c;
   }
   [data-theme="dark"]{
     --bg:#211E1A;
@@ -217,6 +217,7 @@
     position:relative;background:var(--card);border:1px solid var(--card-border);
     border-radius:var(--radius);padding:20px 18px 16px 24px;box-shadow:var(--shadow);
     transition:box-shadow .18s ease, transform .18s ease;overflow:hidden;cursor:pointer;
+    display:flex;flex-direction:column;
   }
   .book-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);}
   .spine{position:absolute;top:0;left:0;width:6px;height:100%;}
@@ -290,11 +291,16 @@
   .modal-overlay{
     position:fixed;inset:0;background:rgba(30,26,20,0.45);backdrop-filter:blur(2px);
     display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;
+    animation:overlayFadeIn .18s ease;
   }
   .modal{
     width:100%;max-width:460px;max-height:88vh;overflow-y:auto;background:var(--card);
     border-radius:22px;padding:28px 26px;box-shadow:var(--shadow-hover);border:1px solid var(--card-border);
+    animation:modalPopIn .22s cubic-bezier(.16,1,.3,1);
   }
+  @keyframes overlayFadeIn{ from{opacity:0;} to{opacity:1;} }
+  @keyframes modalPopIn{ from{opacity:0;transform:translateY(8px) scale(.97);} to{opacity:1;transform:translateY(0) scale(1);} }
+  
   .modal h2{font-size:19px;font-weight:700;margin:0 0 20px;}
   .field textarea{
     width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--card-border);
@@ -352,7 +358,7 @@
 </style>
 </head>
 <body>
-<div id="app"><div class="loading-screen"><div class="spinner"></div>正在載入書架…</div></div>
+<div id="app"><div class="loading-screen"><div class="spinner"></div>正在載入書櫃…</div></div>
 
 <script>
   // ====================================================================
@@ -559,7 +565,7 @@
       <div class="center-screen">
         <div class="auth-card">
           <p class="serif auth-title">晚安。</p>
-          <p class="auth-sub">${mode==="login" ? "登入帳號，回到你的個人書櫃。" : "建立帳號，紀錄你讀過的每一本書。"}</p>
+          <p class="auth-sub">${mode==="login" ? "登入帳號，回到你的書櫃。" : "建立帳號，紀錄你讀過的每一本書。"}</p>
           <div class="auth-error" id="authErr" style="display:none;"></div>
           <div class="field">
             <label>Email</label>
@@ -574,7 +580,7 @@
             ${mode==="login" ? "還沒有帳號？" : "已經有帳號了？"}
             <button id="authToggle">${mode==="login" ? "註冊新帳號" : "直接登入"}</button>
           </div>
-          <p class="auth-note">※網站為AI製作，為保障您的資料安全，請勿使用重要密碼。</p>
+          <p class="auth-note">※為保障您的資料安全，請勿使用重要密碼，並妥善保管您的資料。</p>
         </div>
       </div>
     `;
@@ -656,7 +662,7 @@
         </div>
         <div class="search-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="searchInput" placeholder="搜尋書名或作者…" value="${escapeHtml(searchTerm)}">
+          <input type="text" id="searchInput" placeholder="搜尋書名或作者" value="${escapeHtml(searchTerm)}">
         </div>
         <button class="pill adv-toggle ${advOpen?'open':''}" id="advToggleBtn">
           篩選
@@ -697,7 +703,7 @@
 
   function renderFilterPanel(){
     const panelArea = document.getElementById("filterPanelArea");
-    panelArea.addEventListener("click", e=>{ e.stopPropagation(); });
+    panelArea.addEventListener("click", e=>{ e.stopPropagation(); }); 
     panelArea.innerHTML = `
       <div class="adv-panel ${advOpen?'open':''}">
         <div class="adv-panel-inner">
@@ -775,7 +781,7 @@
     if(!resultsArea) return;
     const list = filteredBooks();
     resultsArea.innerHTML = `
-      <div class="count-row">共 ${list.length} 本書${(searchTerm||filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length) ? "（已篩選）" : ""}</div>
+      <div class="count-row">累計閱讀 ${list.length} 本書${(searchTerm||filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length) ? "（已篩選）" : ""}</div>
       <div class="grid">
         ${list.length ? list.map(cardHtml).join("") : emptyStateHtml()}
       </div>
@@ -799,7 +805,7 @@
     return `
       <div class="empty">
         <div class="empty-mark">📖</div>
-        <h3>${hasAny ? "沒有符合條件的書" : "書架還是空的"}</h3>
+        <h3>${hasAny ? "沒有符合條件的書" : "書櫃還是空的"}</h3>
         <p>${hasAny ? "試著調整篩選條件或搜尋關鍵字。" : "點擊右上角「新增紀錄」，寫下第一本你讀過的書。"}</p>
       </div>
     `;
@@ -822,7 +828,7 @@
         <div class="card-top">
           <div>
             <p class="card-title serif">${escapeHtml(b.title)}</p>
-            <p class="card-author">${escapeHtml(b.author || "作者未填")}</p>
+            <p class="card-author">${escapeHtml(b.author || "（未知）")}</p>
           </div>
           <button class="fav-btn ${b.favorite?'active':''}" data-fav-id="${b.id}" title="收藏最愛">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="${b.favorite?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8"><path d="M12 17.3l-6.16 3.6 1.64-6.99L2 9.24l7.1-.61L12 2l2.9 6.63 7.1.61-5.48 4.67 1.64 6.99z"></path></svg>
@@ -844,7 +850,7 @@
         <div class="card-meta">
           ${starsHtml(b.rating)}
         </div>
-        <div class="card-hint">點擊查看詳情與心得</div>
+        <div class="card-hint">回顧心得</div>
       </div>
     `;
   }
@@ -878,20 +884,17 @@
         <div class="view-row"><span class="view-label">日期</span><span class="view-value">${escapeHtml(b.date||"—")}</span></div>
         <hr class="view-divider">
         <div class="view-section-label">心得</div>
-        <p class="card-review-full">${escapeHtml(b.review) || "（尚未寫下心得）"}</p>
-        <div class="modal-actions">
-          <button class="btn-primary" id="viewCloseBtn">關閉</button>
+        <p class="card-review-full" style="margin-bottom:8px;">${escapeHtml(b.review) || "（尚未留下心得）"}</p>
         </div>
-      </div>
-    `;
+        `;
+    
     document.body.appendChild(overlay);
 
     function close(){ overlay.remove(); }
     overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
-    overlay.querySelector("#viewCloseBtn").addEventListener("click", close);
     overlay.querySelector("#viewEditBtn").addEventListener("click", ()=>{ close(); openModal(b.id); });
     overlay.querySelector("#viewDeleteBtn").addEventListener("click", ()=>{
-      if(confirm("確定要刪除這筆閱讀紀錄嗎？（此動作無法復原）")){
+      if(confirm("確定要刪除紀錄嗎？（此動作無法復原）")){
         close();
         deleteBook(b.id);
       }
@@ -915,11 +918,11 @@
         <h2 class="serif">${existing ? "編輯閱讀紀錄" : "新增閱讀紀錄"}</h2>
         <div class="field">
           <label>書名</label>
-          <input type="text" id="mTitle" value="${escapeHtml(draft.title)}" placeholder="輸入書名">
+          <input type="text" id="mTitle" value="${escapeHtml(draft.title)}" placeholder="書名">
         </div>
         <div class="field">
           <label>作者</label>
-          <input type="text" id="mAuthor" value="${escapeHtml(draft.author)}" placeholder="輸入作者">
+          <input type="text" id="mAuthor" value="${escapeHtml(draft.author)}" placeholder="作者">
         </div>
         <div class="row-2">
           <div class="field">
@@ -940,28 +943,28 @@
         <div class="pov-legend">敘事視角</div>
         <div class="row-2">
           <div class="field">
-            <label>第一視角</label>
+            <label>主視角</label>
             <input type="text" id="mPov1Name" value="${escapeHtml(draft.pov1Name)}" placeholder="人物">
           </div>
           <div class="field">
             <label>屬性</label>
-            <input type="text" id="mPov1Trait" value="${escapeHtml(draft.pov1Trait)}" placeholder="（最多16字符）">
+            <input type="text" id="mPov1Trait" value="${escapeHtml(draft.pov1Trait)}" placeholder="（最多21字符）">
           </div>
         </div>
         <div class="row-2">
           <div class="field">
-            <label>第二視角</label>
+            <label>副視角</label>
             <input type="text" id="mPov2Name" value="${escapeHtml(draft.pov2Name)}" placeholder="人物">
           </div>
           <div class="field">
             <label>屬性</label>
-            <input type="text" id="mPov2Trait" value="${escapeHtml(draft.pov2Trait)}" placeholder="（最多16字符）">
+            <input type="text" id="mPov2Trait" value="${escapeHtml(draft.pov2Trait)}" placeholder="（最多21字符）">
           </div>
         </div>
         <div class="field">
           <label>作品標籤</label>
-          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="多個標籤以半形逗號分隔。（例：現代, 校園…）">
-          <p class="field-hint">※無固定清單，可自訂新增。</p>
+          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="例：現代, 校園…">
+          <p class="field-hint">Tips: 標籤無固定清單，可隨意自訂新增；輸入多個標籤需以半形逗號分隔。</p>
         </div>
         <div class="field">
           <label>評分</label>
@@ -975,7 +978,7 @@
         </div>
         <div class="fav-check">
           <input type="checkbox" id="mFav" ${draft.favorite?'checked':''}>
-          <label for="mFav">加入最愛收藏</label>
+          <label for="mFav">加入最愛</label>
         </div>
         <div class="modal-actions">
           <button class="btn-ghost" id="mCancel">取消</button>
@@ -1056,12 +1059,9 @@
       toast("登入狀態讀取失敗，請重新整理頁面");
     });
   }
-
-  // Clicking anywhere outside the floating filter panel closes it.
-  // (Clicks inside the panel or on its own toggle button never reach here — see stopPropagation above.)
   document.addEventListener("click", ()=>{
-    if(advOpen){ advOpen = false; renderApp(); }
-  });
+  if(advOpen){ advOpen = false; renderApp(); }
+});
 
   init();
 })();
