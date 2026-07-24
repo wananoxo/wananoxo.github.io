@@ -1003,7 +1003,13 @@
     });
 
     function close(){ overlay.remove(); editingId = null; }
-    overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
+    overlay.addEventListener("click", e=>{
+      if(e.target===overlay){
+        if(confirm("紀錄尚未儲存，是否離開？")){
+          close();
+        }
+      }
+    });
     overlay.querySelector("#mCancel").addEventListener("click", close);
 
     overlay.querySelector("#mSave").addEventListener("click", async ()=>{
