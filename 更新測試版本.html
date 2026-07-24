@@ -892,7 +892,10 @@
 
     function close(){ overlay.remove(); }
     overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
-    overlay.querySelector("#viewEditBtn").addEventListener("click", ()=>{ close(); openModal(b.id); });
+    overlay.querySelector("#viewEditBtn").addEventListener("click", ()=>{
+      openModal(b.id);
+      overlay.remove();
+    });
     overlay.querySelector("#viewDeleteBtn").addEventListener("click", ()=>{
       if(confirm("確定要刪除紀錄嗎？（此動作無法復原）")){
         close();
