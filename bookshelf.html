@@ -879,7 +879,7 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path></svg>
             </button>
           </div>
-        </div> /* ----- v7.24.1 ----- */
+        </div>
         ${(b.tags && b.tags.length) ? `<div class="card-tags" style="margin-bottom:12px;">${b.tags.map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}</div>` : ""}
         <div class="view-row"><span class="view-label">評分</span><span class="view-value">${starsHtml(b.rating)}</span></div>
         ${(b.wordCount !== undefined && b.wordCount !== null && b.wordCount !== "") ? `<div class="view-row"><span class="view-label">字數</span><span class="view-value">${escapeHtml(String(b.wordCount))} 萬字</span></div>` : ""}
@@ -891,16 +891,6 @@
       </div>
     `;
     document.body.appendChild(overlay);
-    
-    /* ----- v7.24.1 ----- */
-    function close(){ overlay.remove(); editingId = null; }
-    overlay.addEventListener("click", e=>{
-      if(e.target===overlay){
-        if(confirm("紀錄尚未存檔，是否離開？")){
-          close();
-        }
-      }
-    });
     
     function close(){ overlay.remove(); }
     overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
