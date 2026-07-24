@@ -887,6 +887,7 @@
         <p class="card-review-full" style="margin-bottom:8px;">${escapeHtml(b.review) || "（尚未留下心得）"}</p>
         </div>
         `;
+    
     document.body.appendChild(overlay);
 
     function close(){ overlay.remove(); }
@@ -904,7 +905,7 @@
   }
 
   // ---------------- MODAL ----------------
-  function openModal  function   function  function id, skipEntranceAnim){
+  function openModal(id, skipEntranceAnim){
     editingId = id || null;
     const existing = id ? books.find(b=>b.id===id) : null;
     const draft = existing ? {...existing} : {
