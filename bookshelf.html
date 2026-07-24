@@ -885,17 +885,16 @@
         <hr class="view-divider">
         <div class="view-section-label">心得</div>
         <p class="card-review-full" style="margin-bottom:8px;">${escapeHtml(b.review) || "（尚未留下心得）"}</p>
-        <div class="modal-actions">
-          <button class="btn-primary" id="viewCloseBtn">關閉</button>
         </div>
-      </div>
-    `;
+        `;
     document.body.appendChild(overlay);
 
     function close(){ overlay.remove(); }
     overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
-    overlay.querySelector("#viewCloseBtn").addEventListener("click", close);
-    overlay.querySelector("#viewEditBtn").addEventListener("click", ()=>{ close(); openModal(b.id); });
+    overlay.querySelector("#viewEditBtn").addEventListener("click", ()=>{
+      openModal(b.id, true);
+      overlay.remove();
+    });
     overlay.querySelector("#viewDeleteBtn").addEventListener("click", ()=>{
       if(confirm("確定要刪除紀錄嗎？（此動作無法復原）")){
         close();
@@ -905,7 +904,7 @@
   }
 
   // ---------------- MODAL ----------------
-  function openModal(id){
+  function openModal  function   function  function id, skipEntranceAnim){
     editingId = id || null;
     const existing = id ? books.find(b=>b.id===id) : null;
     const draft = existing ? {...existing} : {
@@ -916,6 +915,7 @@
 
     const overlay = document.createElement("div");
     overlay.className = "modal-overlay";
+    if(skipEntranceAnim){ overlay.style.animation = "none"; }
     overlay.innerHTML = `
       <div class="modal">
         <h2 class="serif">${existing ? "編輯閱讀紀錄" : "新增閱讀紀錄"}</h2>
