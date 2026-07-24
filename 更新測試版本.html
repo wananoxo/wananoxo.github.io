@@ -878,7 +878,10 @@
             </button>
           </div>
         </div>
-        ${(b.tags && b.tags.length) ? `<div class="card-tags" style="margin-bottom:12px;">${b.tags.map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}</div>` : ""}
+        <div class="card-tags" style="margin-bottom:12px;">
+       　 <span class="tag"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:${catColor(b.category)};display:inline-block;"></span>${escapeHtml(b.category)}</span>
+        　${(b.tags||[]).map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}
+        </div>
         <div class="view-row"><span class="view-label">評分</span><span class="view-value">${starsHtml(b.rating)}</span></div>
         ${(b.wordCount !== undefined && b.wordCount !== null && b.wordCount !== "") ? `<div class="view-row"><span class="view-label">字數</span><span class="view-value">${escapeHtml(String(b.wordCount))} 萬字</span></div>` : ""}
         <div class="view-row"><span class="view-label">日期</span><span class="view-value">${escapeHtml(b.date||"—")}</span></div>
