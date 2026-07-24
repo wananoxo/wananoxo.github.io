@@ -213,7 +213,7 @@
   }
   @media (max-width:980px){ .grid{grid-template-columns:repeat(2, 1fr);} }
   @media (max-width:640px){ .grid{grid-template-columns:1fr;} }
-  /*----- 回顧心得固定貼齊書卡底部 v7.24.1 -----*/
+  /* ----- 回顧心得固定貼齊書卡底部 v7.24.1 ----- */
   .book-card{
     position:relative;background:var(--card);border:1px solid var(--card-border);
     border-radius:var(--radius);padding:20px 18px 16px 24px;box-shadow:var(--shadow);
@@ -260,7 +260,7 @@
   .card-review-full{
     font-size:12.5px;color:var(--ink-soft);line-height:1.75;white-space:pre-wrap;margin:0;
   }
-  /*----- 回顧心得固定貼齊書卡底部 v7.24.1 -----*/
+  /* ----- 回顧心得固定貼齊書卡底部 v7.24.1 ----- */
   .card-hint{
     font-size:11px;color:var(--ink-faint);text-align:center;margin-top:auto;padding-top:10px;
     border-top:1px dashed var(--card-border); 
@@ -663,7 +663,7 @@
           <div class="brand-text serif">Good Night.</div>
         </div>
         
-        /*----- 搜尋欄併入篩選 v7.24.1 -----*/
+        /* ----- 搜尋欄併入篩選 v7.24.1 ----- */
        <div class="search-wrap">
          <svg class="search-icon" ...></svg>
          <input type="text" id="searchInput" placeholder="搜尋書名或作者…" value="${escapeHtml(searchTerm)}">
@@ -674,7 +674,7 @@
         </button>
       </div>
          
-        /*<div class="search-wrap">
+        /* <div class="search-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input type="text" id="searchInput" placeholder="搜尋書名或作者" value="${escapeHtml(searchTerm)}">
         </div>
@@ -684,7 +684,7 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
         <button class="add-btn" id="openAdd">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>*/
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> */
           
           新增紀錄
         </button>
@@ -892,7 +892,7 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path></svg>
             </button>
           </div>
-        </div> /*----- 移除彈窗「關閉」按鈕＋心得留白 v7.24.1 -----*/
+        </div> /* ----- 移除彈窗「關閉」按鈕＋心得留白 v7.24.1 ----- */
         ${(b.tags && b.tags.length) ? `<div class="card-tags" style="margin-bottom:12px;">${b.tags.map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}</div>` : ""}
         <div class="view-row"><span class="view-label">評分</span><span class="view-value">${starsHtml(b.rating)}</span></div>
         ${(b.wordCount !== undefined && b.wordCount !== null && b.wordCount !== "") ? `<div class="view-row"><span class="view-label">字數</span><span class="view-value">${escapeHtml(String(b.wordCount))} 萬字</span></div>` : ""}
@@ -905,7 +905,7 @@
     `;
     document.body.appendChild(overlay);
     
-    /*----- 新增/編輯時誤觸空白的確認 v7.24.1 -----*/
+    /* ----- 新增/編輯時誤觸空白的確認 v7.24.1 ----- */
     function close(){ overlay.remove(); editingId = null; }
     overlay.addEventListener("click", e=>{
       if(e.target===overlay){
