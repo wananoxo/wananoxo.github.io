@@ -27,7 +27,7 @@
     --radius: 18px;
     --spine-romance:#C97D82;
     --spine-bl:#6C82AC;
-    --spine-gl:#ffe5a0;
+    --spine-gl:#e0be70;
     --spine-quad:#9a7fbe;
     --spine-male:#004469;
     --spine-female:#7f0020;
@@ -721,7 +721,7 @@
           <div class="adv-row">
             <div class="adv-row-label">評分篩選</div>
             <div class="adv-chips" id="ratingChips">
-              ${[5,4,3,2,1,0].map(n=>`
+              ${[5,4,3,2,1,none].map(n=>`
                 <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${'★'.repeat(n)}</button>
               `).join("")}
             </div>
