@@ -223,14 +223,14 @@
   .spine{position:absolute;top:0;left:0;width:6px;height:100%;}
   .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;}
   .card-title{font-size:16.5px;font-weight:700;line-height:1.4;margin:0;}
-  .card-author{font-size:12.5px;color:var(--ink-soft);margin:3px 0 0 1px;}
+  .card-author{font-size:12.5px;font-weight:500;color:var(--ink-soft);margin:3px 0 0 1px;}
   .fav-btn{
     flex-shrink:0;background:none;border:none;padding:2px;color:var(--ink-faint);
     transition:color .15s ease, transform .15s ease;
   }
   .fav-btn.active{color:var(--gold);}
   .fav-btn:hover{transform:scale(1.12);}
-  .card-meta{display:flex;align-items:center;justify-content:space-between;margin:auto 0 18px;}
+  .card-meta{display:flex;align-items:center;justify-content:space-between;margin:5px 0 20px;}
   .stars{display:flex;gap:2px;color:var(--gold);font-size:14px;}
   .star-empty{color:var(--card-border);}
   .card-date{font-size:11.5px;color:var(--ink-faint);}
@@ -952,7 +952,7 @@
         <div class="pov-legend">敘事視角</div>
         <div class="row-2">
           <div class="field">
-            <label>主視角</label>
+            <label>主角</label>
             <input type="text" id="mPov1Name" value="${escapeHtml(draft.pov1Name)}" placeholder="人物">
           </div>
           <div class="field">
@@ -962,7 +962,7 @@
         </div>
         <div class="row-2">
           <div class="field">
-            <label>副視角</label>
+            <label>主角</label>
             <input type="text" id="mPov2Name" value="${escapeHtml(draft.pov2Name)}" placeholder="人物">
           </div>
           <div class="field">
