@@ -1000,7 +1000,8 @@
     let rating = draft.rating || 0;
     overlay.querySelectorAll("#mStars button").forEach(btn=>{
       btn.addEventListener("click", ()=>{
-        rating = parseInt(btn.getAttribute("data-n"),10);
+        const n = parseInt(btn.getAttribute("data-n"),10);
+        rating = (rating === n) ? 0 : n;
         overlay.querySelectorAll("#mStars button").forEach(b2=>{
           b2.classList.toggle("on", parseInt(b2.getAttribute("data-n"),10) <= rating);
         });
