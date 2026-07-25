@@ -316,6 +316,16 @@
   .row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   .pov-legend{font-size:12px;font-weight:600;color:var(--ink);margin:2px 0 8px;}
   .field-hint{font-size:11px;color:var(--ink-faint);margin-top:5px;line-height:1.5;}
+  .tag-suggest-dropdown{
+    position:absolute;top:100%;left:0;right:0;margin-top:4px;z-index:5;
+    background:var(--card);border:1px solid var(--card-border);border-radius:12px;
+    box-shadow:var(--shadow-hover);padding:6px;max-height:180px;overflow-y:auto;
+  }
+  .tag-suggest-dropdown button{
+    display:block;width:100%;text-align:left;padding:8px 10px;border:none;background:none;
+    border-radius:8px;font-size:13px;color:var(--ink);cursor:pointer;
+  }
+  .tag-suggest-dropdown button:hover{background:var(--bg-soft);}
   .star-picker{display:flex;gap:6px;}
   .star-picker button{background:none;border:none;font-size:26px;color:var(--card-border);padding:0;line-height:1;transition:color .12s ease, transform .1s ease;}
   .star-picker button.on{color:var(--gold);}
@@ -895,7 +905,7 @@
         `;
     
     document.body.appendChild(overlay);
-
+    
     function close(){ overlay.remove(); }
     overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
     overlay.querySelector("#viewEditBtn").addEventListener("click", ()=>{
@@ -973,8 +983,11 @@
         </div>
         <div class="field">
           <label>作品標籤</label>
-          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="例：現代, 校園…">
-          <p class="field-hint">Tips: 標籤無固定清單，可隨意自訂新增；輸入多個標籤需以半形逗號分隔。</p>
+          <div style="position:relative;">
+            <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="多個標籤以半形逗號分隔。（例：現代, 校園…）" autocomplete="off">
+            <div class="tag-suggest-dropdown" id="tagSuggestDropdown" style="display:none;"></div>
+          </div>
+          <p class="field-hint">※無固定清單，可自訂新增。</p>
         </div>
         <div class="field">
           <label>評分</label>
@@ -996,8 +1009,37 @@
         </div>
       </div>
     `;
+    
     document.body.appendChild(overlay);
 
+    const tagsInputEl = overlay.querySelector("#mTags");
+    const suggestDropdown = overlay.querySelector("#tagSuggestDropdown");
+    
+    function updateTagSuggestions(){
+      const segments = tagsInputEl.value.split(",");
+      const query = segments[segments.length-1].trim();
+      const alreadyAdded = segments.slice(0,-1).map(s=>s.trim()).filter(Boolean);
+      
+      if(!query){ suggestDropdown.style.display = "none"; suggestDropdown.innerHTML = ""; return; }
+      
+      const matches = allTags().filter(t => t.includes(query) && t !== query && !alreadyAdded.includes(t)).slice(0,8);
+      if(!matches.length){ suggestDropdown.style.display = "none"; suggestDropdown.innerHTML = ""; return; }
+      
+      suggestDropdown.innerHTML = matches.map(t=>`<button type="button" data-pick-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join("");
+      suggestDropdown.style.display = "block";
+      suggestDropdown.querySelectorAll("[data-pick-tag]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const t = btn.getAttribute("data-pick-tag");
+          segments[segments.length-1] = " " + t;
+          tagsInputEl.value = segments.map(s=>s.trim()).filter(Boolean).join(", ") + ", ";
+          suggestDropdown.style.display = "none";
+          tagsInputEl.focus();
+        });
+      });
+    }
+    tagsInputEl.addEventListener("input", updateTagSuggestions);
+    tagsInputEl.addEventListener("blur", ()=>{ setTimeout(()=>{ suggestDropdown.style.display = "none"; }, 150); });
+    
     let rating = draft.rating || 0;
     overlay.querySelectorAll("#mStars button").forEach(btn=>{
       btn.addEventListener("click", ()=>{
