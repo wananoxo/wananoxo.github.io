@@ -845,12 +845,7 @@
           </div>
         ` : ""}
         ${(b.tags && b.tags.length) ? `
-        <div class="card-tags" style="margin-bottom:12px;">
-          <span class="tag" style="padding:2px 9px;font-size:10.5px;font-weight:500;">
-            <span class="dot" style="width:6px;height:6px;border-radius:50%;background:${catColor(b.category)};display:inline-block;"></span>${escapeHtml(b.category)}
-          </span>
-          ${(b.tags||[]).map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}
-        </div>
+          <div class="card-tags">${b.tags.map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}</div>
         ` : ""}
         <div class="card-meta">
           ${starsHtml(b.rating)}
@@ -884,8 +879,10 @@
           </div>
         </div>
         <div class="card-tags" style="margin-bottom:12px;">
-       　 <span class="tag"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:${catColor(b.category)};display:inline-block;"></span>${escapeHtml(b.category)}</span>
-        　${(b.tags||[]).map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}
+          <span class="tag" style="padding:2px 9px;font-size:10.5px;font-weight:500;">
+            <span class="dot" style="width:6px;height:6px;border-radius:50%;background:${catColor(b.category)};display:inline-block;"></span>${escapeHtml(b.category)}
+          </span>
+          ${(b.tags||[]).map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}
         </div>
         <div class="view-row"><span class="view-label">評分</span><span class="view-value">${starsHtml(b.rating)}</span></div>
         ${(b.wordCount !== undefined && b.wordCount !== null && b.wordCount !== "") ? `<div class="view-row"><span class="view-label">字數</span><span class="view-value">${escapeHtml(String(b.wordCount))} 萬字</span></div>` : ""}
