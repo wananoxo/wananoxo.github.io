@@ -317,7 +317,7 @@
   .pov-legend{font-size:12px;font-weight:600;color:var(--ink);margin:2px 0 8px;}
   .field-hint{font-size:11px;color:var(--ink-faint);margin-top:5px;line-height:1.5;}
   .tag-suggest-dropdown{
-    position:absolute;left:0;right:0;margin-top:3px;z-index:5;
+    position:absolute;top:100%;left:0;right:0;margin-top:4px;z-index:5;
     background:var(--card);border:1px solid var(--card-border);border-radius:12px;
     box-shadow:var(--shadow-hover);padding:6px;max-height:180px;overflow-y:auto;
   }
@@ -981,11 +981,13 @@
             <input type="text" id="mPov2Trait" value="${escapeHtml(draft.pov2Trait)}" placeholder="（最多21字符）">
           </div>
         </div>
-        <div class="field" style="position:relative;">
+        <div class="field">
           <label>作品標籤</label>
-          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="例：現代, 校園…" autocomplete="off">
-          <p class="field-hint">Tips: 標籤無固定清單，可隨意自訂新增；輸入多個標籤需以半形逗號分隔。</p>
-          <div class="tag-suggest-dropdown" id="tagSuggestDropdown" style="display:none;"></div>
+          <div style="position:relative;">
+            <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="多個標籤以半形逗號分隔。（例：現代, 校園…）" autocomplete="off">
+            <div class="tag-suggest-dropdown" id="tagSuggestDropdown" style="display:none;"></div>
+          </div>
+          <p class="field-hint">※無固定清單，可自訂新增。</p>
         </div>
         <div class="field">
           <label>評分</label>
