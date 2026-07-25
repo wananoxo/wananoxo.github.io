@@ -905,7 +905,7 @@
         `;
     
     document.body.appendChild(overlay);
-    
+
     const tagsInputEl = overlay.querySelector("#mTags");
     const suggestDropdown = overlay.querySelector("#tagSuggestDropdown");
     
@@ -933,7 +933,7 @@
     }
     tagsInputEl.addEventListener("input", updateTagSuggestions);
     tagsInputEl.addEventListener("blur", ()=>{ setTimeout(()=>{ suggestDropdown.style.display = "none"; }, 150); });
-
+    
     function close(){ overlay.remove(); }
     overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
     overlay.querySelector("#viewEditBtn").addEventListener("click", ()=>{
@@ -1035,30 +1035,7 @@
         </div>
       </div>
     `;
-    
     document.body.appendChild(overlay);
-    const tagsInputEl = overlay.querySelector("#mTags");
-    function currentTagList(){
-      return tagsInputEl.value.split(",").map(s=>s.trim()).filter(Boolean);
-    }
-    function refreshSuggestChips(){
-      const current = currentTagList();
-      overlay.querySelectorAll("[data-suggest-tag]").forEach(chip=>{
-        chip.classList.toggle("active", current.includes(chip.getAttribute("data-suggest-tag")));
-      });
-    }
-    overlay.querySelectorAll("[data-suggest-tag]").forEach(chip=>{
-      chip.addEventListener("click", ()=>{
-        const t = chip.getAttribute("data-suggest-tag");
-        const current = currentTagList();
-        tagsInputEl.value = current.includes(t)
-          ? current.filter(x=>x!==t).join(", ")
-          : [...current, t].join(", ");
-        refreshSuggestChips();
-      });
-    });
-    tagsInputEl.addEventListener("input", refreshSuggestChips);
-    refreshSuggestChips();
 
     let rating = draft.rating || 0;
     overlay.querySelectorAll("#mStars button").forEach(btn=>{
