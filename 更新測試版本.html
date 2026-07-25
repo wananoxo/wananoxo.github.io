@@ -905,34 +905,6 @@
         `;
     
     document.body.appendChild(overlay);
-
-    const tagsInputEl = overlay.querySelector("#mTags");
-    const suggestDropdown = overlay.querySelector("#tagSuggestDropdown");
-    
-    function updateTagSuggestions(){
-      const segments = tagsInputEl.value.split(",");
-      const query = segments[segments.length-1].trim();
-      const alreadyAdded = segments.slice(0,-1).map(s=>s.trim()).filter(Boolean);
-      
-      if(!query){ suggestDropdown.style.display = "none"; suggestDropdown.innerHTML = ""; return; }
-      
-      const matches = allTags().filter(t => t.includes(query) && t !== query && !alreadyAdded.includes(t)).slice(0,8);
-      if(!matches.length){ suggestDropdown.style.display = "none"; suggestDropdown.innerHTML = ""; return; }
-      
-      suggestDropdown.innerHTML = matches.map(t=>`<button type="button" data-pick-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join("");
-      suggestDropdown.style.display = "block";
-      suggestDropdown.querySelectorAll("[data-pick-tag]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const t = btn.getAttribute("data-pick-tag");
-          segments[segments.length-1] = " " + t;
-          tagsInputEl.value = segments.map(s=>s.trim()).filter(Boolean).join(", ") + ", ";
-          suggestDropdown.style.display = "none";
-          tagsInputEl.focus();
-        });
-      });
-    }
-    tagsInputEl.addEventListener("input", updateTagSuggestions);
-    tagsInputEl.addEventListener("blur", ()=>{ setTimeout(()=>{ suggestDropdown.style.display = "none"; }, 150); });
     
     function close(){ overlay.remove(); }
     overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
@@ -1035,8 +1007,37 @@
         </div>
       </div>
     `;
+    
     document.body.appendChild(overlay);
 
+    const tagsInputEl = overlay.querySelector("#mTags");
+    const suggestDropdown = overlay.querySelector("#tagSuggestDropdown");
+    
+    function updateTagSuggestions(){
+      const segments = tagsInputEl.value.split(",");
+      const query = segments[segments.length-1].trim();
+      const alreadyAdded = segments.slice(0,-1).map(s=>s.trim()).filter(Boolean);
+      
+      if(!query){ suggestDropdown.style.display = "none"; suggestDropdown.innerHTML = ""; return; }
+      
+      const matches = allTags().filter(t => t.includes(query) && t !== query && !alreadyAdded.includes(t)).slice(0,8);
+      if(!matches.length){ suggestDropdown.style.display = "none"; suggestDropdown.innerHTML = ""; return; }
+      
+      suggestDropdown.innerHTML = matches.map(t=>`<button type="button" data-pick-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join("");
+      suggestDropdown.style.display = "block";
+      suggestDropdown.querySelectorAll("[data-pick-tag]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const t = btn.getAttribute("data-pick-tag");
+          segments[segments.length-1] = " " + t;
+          tagsInputEl.value = segments.map(s=>s.trim()).filter(Boolean).join(", ") + ", ";
+          suggestDropdown.style.display = "none";
+          tagsInputEl.focus();
+        });
+      });
+    }
+    tagsInputEl.addEventListener("input", updateTagSuggestions);
+    tagsInputEl.addEventListener("blur", ()=>{ setTimeout(()=>{ suggestDropdown.style.display = "none"; }, 150); });
+    
     let rating = draft.rating || 0;
     overlay.querySelectorAll("#mStars button").forEach(btn=>{
       btn.addEventListener("click", ()=>{
