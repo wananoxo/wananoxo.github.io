@@ -623,7 +623,7 @@
     return books.filter(b=>{
       if(favOnly && !b.favorite) return false;
       if(filterCategory !== "全部" && b.category !== filterCategory) return false;
-      if(selectedRatings.length && !selectedRatings.includes(b.rating)) return false;
+      if(selectedRatings.length && !selectedRatings.includes(b.rating || 0)) return false;
       if(selectedTags.length){
         const bTags = b.tags || [];
         if(!selectedTags.some(t=>bTags.includes(t))) return false;
