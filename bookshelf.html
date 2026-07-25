@@ -256,6 +256,7 @@
     padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:500;
     background:var(--bg-soft);color:var(--ink-soft);
   }
+  .tag-pill.tag-pill-active{background:var(--accent);color:var(--accent-ink);}
   .card-review-full{
     font-size:12.5px;color:var(--ink-soft);line-height:1.75;white-space:pre-wrap;margin:0;
   }
@@ -845,7 +846,7 @@
           </div>
         ` : ""}
         ${(b.tags && b.tags.length) ? `
-          <div class="card-tags">${b.tags.map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}</div>
+          <div class="card-tags">${b.tags.map(t=>`<span class="tag-pill${selectedTags.includes(t)?' tag-pill-active':''}">${escapeHtml(t)}</span>`).join("")}</div>
         ` : ""}
         <div class="card-meta">
           ${starsHtml(b.rating)}
