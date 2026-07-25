@@ -721,8 +721,8 @@
           <div class="adv-row">
             <div class="adv-row-label">評分篩選</div>
             <div class="adv-chips" id="ratingChips">
-              ${[5,4,3,2,1,none].map(n=>`
-                <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${'★'.repeat(n)}</button>
+              ${[5,4,3,2,1,0].map(n=>`
+                <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${n===0 ? '☆' : '★'.repeat(n)}</button>
               `).join("")}
             </div>
           </div>
