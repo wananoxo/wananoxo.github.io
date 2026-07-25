@@ -726,7 +726,7 @@
                 <button type="button" class="chip ${filterCategory===c.key?'active':''}" data-cat="${c.key}"
                   ${filterCategory===c.key ? `style="background:${c.color};border-color:${c.color};color:${c.activeText};"` : ""}>${c.key}</button>
               `).join("")}
-              <button type="button" class="chip fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 最愛</button>
+              <button type="button" class="chip fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 我的收藏</button>
             </div>
           </div>
           <div class="adv-row">
@@ -841,7 +841,7 @@
             <p class="card-title serif">${escapeHtml(b.title)}</p>
             <p class="card-author">${escapeHtml(b.author || "（未知）")}</p>
           </div>
-          <button class="fav-btn ${b.favorite?'active':''}" data-fav-id="${b.id}" title="收藏最愛">
+          <button class="fav-btn ${b.favorite?'active':''}" data-fav-id="${b.id}" title="加入收藏">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="${b.favorite?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8"><path d="M12 17.3l-6.16 3.6 1.64-6.99L2 9.24l7.1-.61L12 2l2.9 6.63 7.1.61-5.48 4.67 1.64 6.99z"></path></svg>
           </button>
         </div>
@@ -1001,7 +1001,7 @@
         </div>
         <div class="fav-check">
           <input type="checkbox" id="mFav" ${draft.favorite?'checked':''}>
-          <label for="mFav">加入最愛</label>
+          <label for="mFav">加入收藏</label>
         </div>
         <div class="modal-actions">
           <button class="btn-ghost" id="mCancel">取消</button>
