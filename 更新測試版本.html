@@ -1009,9 +1009,9 @@
             <input type="text" id="mPov2Trait" value="${escapeHtml(draft.pov2Trait)}" placeholder="（最多21字符）">
           </div>
         </div>
-        <div class="field">
+        <div class="field" style="position:relative;">
           <label>作品標籤</label>
-          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="例：現代, 校園…">
+          <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="例：現代, 校園…" autocomplete="off">
           <p class="field-hint">Tips: 標籤無固定清單，可隨意自訂新增；輸入多個標籤需以半形逗號分隔。</p>
           <div class="tag-suggest-dropdown" id="tagSuggestDropdown" style="display:none;"></div>
         </div>
