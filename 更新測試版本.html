@@ -21,17 +21,17 @@
     --accent:#9C6B63;
     --accent-ink:#FFFDF9;
     --accent-soft:#EFDCD5;
-    --gold:#e0be70;
+    --gold:#e8c064;
     --shadow: 0 1px 2px rgba(59,54,45,0.04), 0 6px 18px rgba(59,54,45,0.06);
     --shadow-hover: 0 2px 4px rgba(59,54,45,0.06), 0 14px 30px rgba(59,54,45,0.10);
     --radius: 18px;
     --spine-romance:#C97D82;
     --spine-bl:#6C82AC;
-    --spine-gl:#9A7FBE;
-    --spine-quad:#e0be70;
+    --spine-gl:#e8c064;
+    --spine-quad:#af95c2;
     --spine-male:#004469;
     --spine-female:#7f0020;
-    --spine-classic:#bb8b6c;
+    --spine-classic:#9C6B63;
   }
   [data-theme="dark"]{
     --bg:#211E1A;
@@ -126,7 +126,7 @@
   .brand{display:flex;align-items:center;gap:10px;margin-right:auto;}
   .brand-mark{
     width:34px;height:34px;border-radius:9px;
-    background:linear-gradient(160deg,var(--spine-romance),var(--spine-quad));
+    background:linear-gradient(160deg,var(--spine-romance),var(--spine-gl));
     display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;
     box-shadow:var(--shadow);cursor:pointer;border:none;transition:transform .15s ease, box-shadow .15s ease;
     padding:0;
@@ -223,14 +223,14 @@
   .spine{position:absolute;top:0;left:0;width:6px;height:100%;}
   .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;}
   .card-title{font-size:16.5px;font-weight:700;line-height:1.4;margin:0;}
-  .card-author{font-size:12.5px;color:var(--ink-soft);margin:3px 0 0;}
+  .card-author{font-size:12.5px;font-weight:500;color:var(--ink-soft);margin:3px 0 0 1px;}
   .fav-btn{
     flex-shrink:0;background:none;border:none;padding:2px;color:var(--ink-faint);
     transition:color .15s ease, transform .15s ease;
   }
   .fav-btn.active{color:var(--gold);}
   .fav-btn:hover{transform:scale(1.12);}
-  .card-meta{display:flex;align-items:center;justify-content:space-between;margin:auto 0 10px;}
+  .card-meta{display:flex;align-items:center;justify-content:space-between;margin:5px 0 20px;}
   .stars{display:flex;gap:2px;color:var(--gold);font-size:14px;}
   .star-empty{color:var(--card-border);}
   .card-date{font-size:11.5px;color:var(--ink-faint);}
@@ -248,7 +248,7 @@
     display:flex;flex-direction:column;gap:2px;
   }
   .pov-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
-  .pov-row .pov-name{flex:1;min-width:0;font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pov-row .pov-name{flex:1;min-width:0;font-size:12px;font-weight:400;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .pov-row .pov-trait{flex-shrink:0;max-width:70%;font-size:10.5px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .card-pov b{color:var(--ink);font-weight:600;}
   .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
@@ -256,11 +256,12 @@
     padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:500;
     background:var(--bg-soft);color:var(--ink-soft);
   }
+  .tag-pill.tag-pill-active{background:var(--accent);color:var(--accent-ink);}
   .card-review-full{
     font-size:12.5px;color:var(--ink-soft);line-height:1.75;white-space:pre-wrap;margin:0;
   }
   .card-hint{
-    font-size:11px;color:var(--ink-faint);text-align:center;margin-top:10px;padding-top:10px;
+    font-size:11px;color:var(--ink-faint);text-align:center;margin-top:auto;padding-top:10px;
     border-top:1px dashed var(--card-border);
   }
 
@@ -623,7 +624,7 @@
     return books.filter(b=>{
       if(favOnly && !b.favorite) return false;
       if(filterCategory !== "全部" && b.category !== filterCategory) return false;
-      if(selectedRatings.length && !selectedRatings.includes(b.rating)) return false;
+      if(selectedRatings.length && !selectedRatings.includes(b.rating || 0)) return false;
       if(selectedTags.length){
         const bTags = b.tags || [];
         if(!selectedTags.some(t=>bTags.includes(t))) return false;
@@ -721,8 +722,8 @@
           <div class="adv-row">
             <div class="adv-row-label">評分篩選</div>
             <div class="adv-chips" id="ratingChips">
-              ${[5,4,3,2,1].map(n=>`
-                <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${'★'.repeat(n)}</button>
+              ${[5,4,3,2,1,0].map(n=>`
+                <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${n===0 ? '☆' : '★'.repeat(n)}</button>
               `).join("")}
             </div>
           </div>
@@ -845,7 +846,7 @@
           </div>
         ` : ""}
         ${(b.tags && b.tags.length) ? `
-          <div class="card-tags">${b.tags.map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}</div>
+          <div class="card-tags">${b.tags.map(t=>`<span class="tag-pill${selectedTags.includes(t)?' tag-pill-active':''}">${escapeHtml(t)}</span>`).join("")}</div>
         ` : ""}
         <div class="card-meta">
           ${starsHtml(b.rating)}
@@ -952,7 +953,7 @@
         <div class="pov-legend">敘事視角</div>
         <div class="row-2">
           <div class="field">
-            <label>主視角</label>
+            <label>主角</label>
             <input type="text" id="mPov1Name" value="${escapeHtml(draft.pov1Name)}" placeholder="人物">
           </div>
           <div class="field">
@@ -962,7 +963,7 @@
         </div>
         <div class="row-2">
           <div class="field">
-            <label>副視角</label>
+            <label>主角</label>
             <input type="text" id="mPov2Name" value="${escapeHtml(draft.pov2Name)}" placeholder="人物">
           </div>
           <div class="field">
@@ -974,6 +975,14 @@
           <label>作品標籤</label>
           <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="例：現代, 校園…">
           <p class="field-hint">Tips: 標籤無固定清單，可隨意自訂新增；輸入多個標籤需以半形逗號分隔。</p>
+          ${allTags().length ? `
+          　<div class="tag-suggest-box">
+          　　<div class="tag-suggest-label">推薦標籤</div>
+          　　<div class="tag-suggest-chips">
+          　　　${allTags().map(t=>`<button type="button" class="chip" data-suggest-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join("")}
+          　　</div>
+            </div>
+          ` : ""}
         </div>
         <div class="field">
           <label>評分</label>
@@ -995,12 +1004,40 @@
         </div>
       </div>
     `;
+    
+    .tag-suggest-box{margin-top:10px;padding:12px 14px;border-radius:12px;border:1px solid var(--card-border);background:var(--bg-soft);}
+    .tag-suggest-label{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:8px;}
+    .tag-suggest-chips{display:flex;flex-wrap:wrap;gap:8px;}
+    
     document.body.appendChild(overlay);
+    const tagsInputEl = overlay.querySelector("#mTags");
+    function currentTagList(){
+      return tagsInputEl.value.split(",").map(s=>s.trim()).filter(Boolean);
+    }
+    function refreshSuggestChips(){
+      const current = currentTagList();
+      overlay.querySelectorAll("[data-suggest-tag]").forEach(chip=>{
+        chip.classList.toggle("active", current.includes(chip.getAttribute("data-suggest-tag")));
+      });
+    }
+    overlay.querySelectorAll("[data-suggest-tag]").forEach(chip=>{
+      chip.addEventListener("click", ()=>{
+        const t = chip.getAttribute("data-suggest-tag");
+        const current = currentTagList();
+        tagsInputEl.value = current.includes(t)
+          ? current.filter(x=>x!==t).join(", ")
+          : [...current, t].join(", ");
+        refreshSuggestChips();
+      });
+    });
+    tagsInputEl.addEventListener("input", refreshSuggestChips);
+    refreshSuggestChips();
 
     let rating = draft.rating || 0;
     overlay.querySelectorAll("#mStars button").forEach(btn=>{
       btn.addEventListener("click", ()=>{
-        rating = parseInt(btn.getAttribute("data-n"),10);
+        const n = parseInt(btn.getAttribute("data-n"),10);
+        rating = (rating === n) ? 0 : n;
         overlay.querySelectorAll("#mStars button").forEach(b2=>{
           b2.classList.toggle("on", parseInt(b2.getAttribute("data-n"),10) <= rating);
         });
