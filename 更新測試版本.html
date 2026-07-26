@@ -773,19 +773,6 @@
             </div>
           </div>
           <div class="adv-row">
-            <div class="adv-row-label">日期篩選</div>
-            <div class="adv-date-filters">
-              <select class="date-filter-select" id="yearFilterSelect">
-                <option value="">年份不限</option>
-                ${allYears().map(y=>`<option value="${y}" ${selectedYear===y?'selected':''}>${y}年</option>`).join("")}
-              </select>
-              <select class="date-filter-select" id="monthFilterSelect" ${!selectedYear ? 'disabled' : ''}>
-                <option value="">月份不限</option>
-                ${Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0')).map(m=>`<option value="${m}" ${selectedMonth===m?'selected':''}>${parseInt(m,10)}月</option>`).join("")}
-              </select>
-            </div>
-          </div>
-          <div class="adv-row">
             <div class="adv-row-label">標籤篩選（再點一次可切換為排除）</div>
             ${allTags().length ? `
               <div class="adv-chips" id="tagChips">
@@ -796,6 +783,19 @@
                 }).join("")}
               </div>
             ` : `<div class="adv-empty-note">還沒有任何標籤，新增閱讀紀錄時可以自訂標籤。</div>`}
+            </div>
+          </div>
+          <div class="adv-row">
+          <div class="adv-row-label">日期篩選</div>
+          <div class="adv-date-filters">
+            <select class="date-filter-select" id="yearFilterSelect">
+              <option value="">年份不限</option>
+              ${allYears().map(y=>`<option value="${y}" ${selectedYear===y?'selected':''}>${y}年</option>`).join("")}
+            </select>
+            <select class="date-filter-select" id="monthFilterSelect" ${!selectedYear ? 'disabled' : ''}>
+              <option value="">月份不限</option>
+              ${Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0')).map(m=>`<option value="${m}" ${selectedMonth===m?'selected':''}>${parseInt(m,10)}月</option>`).join("")}
+            </select>
           </div>
         </div>
         ${hasActiveFilter ? `<div class="adv-panel-footer"><button class="adv-clear" id="advClearBtn">清除篩選條件</button></div>` : ""}
