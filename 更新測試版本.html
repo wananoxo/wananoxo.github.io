@@ -388,13 +388,7 @@
 <div id="app"><div class="loading-screen"><div class="spinner"></div>正在載入書櫃…</div></div>
 
 <script>
-  // ====================================================================
-  // 請在這裡填入你自己的 Firebase 設定
-  // 取得方式：Firebase Console → 專案設定（齒輪圖示）→ 一般 →
-  //           拉到最下面「你的應用程式」→ 選擇 Web 應用程式 → 複製 firebaseConfig
-  // 這組 config 本身不是密鑰，可以放心寫在前端程式碼裡，
-  // 真正的存取控制是靠 Firestore 安全規則（見下方說明）
-  // ====================================================================
+
   const firebaseConfig = {
     apiKey: "AIzaSyCsv-3irOpjiyjvFuZuZvM4q57kWtXgfzs",
     authDomain: "wanan-bookshelf.firebaseapp.com",
@@ -406,7 +400,6 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
-  // ====================================================================
 
 (function(){
   "use strict";
@@ -432,12 +425,12 @@
   let searchTerm = "";
   let editingId = null; // null = not editing / add mode when modal open
   let advOpen = false;
-  let selectedRatings = [];   // e.g. [4,5]
-  let selectedTags = [];      // e.g. ["校園","甜文"]
-  let excludedTags = [];      // e.g. ["虐"] — must NOT have any of these
-  let selectedYear = "";      // e.g. "2026" — "" means unrestricted
-  let selectedMonth = "";     // e.g. "07" — "" means unrestricted (only applies when selectedYear is set)
-  let isComposing = false;    // true while an IME (e.g. 注音) composition is in progress
+  let selectedRatings = [];
+  let selectedTags = [];
+  let excludedTags = [];
+  let selectedYear = ""; 
+  let selectedMonth = "";
+  let isComposing = false;
 
   const app = document.getElementById("app");
 
@@ -773,6 +766,19 @@
             </div>
           </div>
           <div class="adv-row">
+            <div class="adv-row-label">標籤篩選（再點一次可切換為排除）</div>
+            ${allTags().length ? `
+              <div class="adv-chips" id="tagChips">
+                ${allTags().map(t=>{
+                    const isIncluded = selectedTags.includes(t);
+                    const isExcluded = excludedTags.includes(t);
+                    return `<button type="button" class="chip ${isIncluded?'active':''} ${isExcluded?'excluded':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`;
+                  }).join("")}
+                </div>
+              ` : `<div class="adv-empty-note">還沒有任何標籤，新增閱讀紀錄時可以自訂標籤。</div>`}
+            </div>
+          </div>
+          <div class="adv-row">
             <div class="adv-row-label">日期篩選</div>
             <div class="adv-date-filters">
               <select class="date-filter-select" id="yearFilterSelect">
@@ -785,19 +791,7 @@
               </select>
             </div>
           </div>
-          <div class="adv-row">
-            <div class="adv-row-label">標籤篩選（再點一次可切換為排除）</div>
-            ${allTags().length ? `
-              <div class="adv-chips" id="tagChips">
-                ${allTags().map(t=>{
-                  const isIncluded = selectedTags.includes(t);
-                  const isExcluded = excludedTags.includes(t);
-                  return `<button type="button" class="chip ${isIncluded?'active':''} ${isExcluded?'excluded':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`;
-                }).join("")}
-              </div>
-            ` : `<div class="adv-empty-note">還沒有任何標籤，新增閱讀紀錄時可以自訂標籤。</div>`}
-          </div>
-        </div>
+          
         ${hasActiveFilter ? `<div class="adv-panel-footer"><button class="adv-clear" id="advClearBtn">清除篩選條件</button></div>` : ""}
       </div>
     </div>
