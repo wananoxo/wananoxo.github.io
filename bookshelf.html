@@ -184,13 +184,25 @@
     transition:max-height .22s ease, opacity .18s ease, padding .22s ease, transform .18s ease;
   }
   .adv-panel.open{
-    max-height:min(72vh, 640px);overflow-y:auto;opacity:1;pointer-events:auto;
+    max-height:540px;opacity:1;pointer-events:auto;
     padding:14px 28px 20px;transform:translateY(0);
   }
   .adv-panel-inner{
-    background:var(--bg-soft);border:1px solid var(--card-border);border-radius:16px;
-    padding:16px 18px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow-hover);
+    background:color-mix(in srgb, var(--bg-soft) 90%, transparent);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border:1px solid var(--card-border);border-radius:16px;
+    box-shadow:var(--shadow-hover);overflow:hidden;
   }
+  .adv-panel-scroll{
+    height:min(420px, 55vh);overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px;
+    mask-image:linear-gradient(to bottom, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+  }
+  .adv-panel-footer{
+    padding:10px 18px 14px;border-top:1px solid var(--card-border);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .adv-filter-status{font-size:12px;color:var(--ink-soft);}
   .adv-row{display:flex;flex-direction:column;gap:8px;}
   .adv-row-label{font-size:12px;font-weight:600;color:var(--ink-soft);}
   .adv-chips{display:flex;flex-wrap:wrap;gap:8px;}
@@ -199,6 +211,18 @@
     background:var(--card);color:var(--ink-soft);font-size:12px;font-weight:500;transition:all .15s ease;
   }
   .chip.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+  .chip.excluded{background:#d1bab0;color:#fff;border-color:#d1bab0;text-decoration:line-through;}
+  .adv-date-filters{display:flex;gap:10px;}
+  .date-filter-select{
+    padding:8px 10px;border-radius:10px;border:1px solid var(--card-border);
+    background:var(--card);color:var(--ink);font-size:13px;outline:none;flex:none;
+  }
+  .date-filter-select.year-select{width:112px;}
+  .date-filter-select.month-select{width:112px;}
+  select.date-filter-select{padding-right:26px;}
+  .adv-date-filters{margin-bottom:6px;}
+  .adv-date-exact{display:flex;align-items:center;gap:10px;}
+  .adv-date-exact-clear{background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;padding:0;flex-shrink:0;}
   .adv-empty-note{font-size:11.5px;color:var(--ink-faint);}
   .adv-clear{
     align-self:flex-start;background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;padding:2px 0;
@@ -369,7 +393,7 @@
 </style>
 </head>
 <body>
-<div id="app"><div class="loading-screen"><div class="spinner"></div>正在載入書櫃…</div></div>
+<div id="app"><div class="loading-screen"><div class="spinner"></div>正在前往書櫃…</div></div>
 
 <script>
   // ====================================================================
@@ -418,6 +442,10 @@
   let advOpen = false;
   let selectedRatings = [];   // e.g. [4,5]
   let selectedTags = [];      // e.g. ["校園","甜文"]
+  let excludedTags = [];      // 排除清單，有這些標籤的書會被濾掉
+  let selectedYear = "";      // 例如 "2026"，空字串代表不限
+  let selectedMonth = "";     // 例如 "07"，只有選了年份才會生效
+  let selectedExactDate = ""; // 例如 "2026-07-20"，空字串代表不限
   let isComposing = false;    // true while an IME (e.g. 注音) composition is in progress
 
   const app = document.getElementById("app");
@@ -512,7 +540,8 @@
 
   async function handleLogout(){
     filterCategory = "全部"; favOnly = false; searchTerm = "";
-    selectedRatings = []; selectedTags = []; advOpen = false;
+    selectedRatings = []; selectedTags = []; excludedTags = [];
+    selectedYear = ""; selectedMonth = ""; selectedExactDate = ""; advOpen = false;
     try{ await auth.signOut(); }catch(e){ toast("登出失敗，請稍後再試"); }
   }
 
@@ -591,7 +620,7 @@
             ${mode==="login" ? "還沒有帳號？" : "已經有帳號了？"}
             <button id="authToggle">${mode==="login" ? "註冊新帳號" : "直接登入"}</button>
           </div>
-          <p class="auth-note">※為保障您的資料安全，請勿使用重要密碼，並妥善保管您的資料。</p>
+          <p class="auth-note">※請勿使用重要密碼，並妥善保管您的資料。</p>
         </div>
       </div>
     `;
@@ -630,6 +659,12 @@
     return Object.keys(counts).sort((a,b)=> counts[b]-counts[a] || a.localeCompare(b,'zh-Hant'));
   }
 
+  function allYears(){
+    const years = new Set();
+    books.forEach(b => { if(b.date){ years.add(b.date.slice(0,4)); } });
+    return Array.from(years).sort((a,b)=> b.localeCompare(a));
+  }
+
   function filteredBooks(){
     return books.filter(b=>{
       if(favOnly && !b.favorite) return false;
@@ -639,6 +674,15 @@
         const bTags = b.tags || [];
         if(!selectedTags.some(t=>bTags.includes(t))) return false;
       }
+      if(excludedTags.length){
+        const bTags = b.tags || [];
+        if(excludedTags.some(t=>bTags.includes(t))) return false;
+      }
+      if(selectedYear){
+        if(!b.date || b.date.slice(0,4) !== selectedYear) return false;
+        if(selectedMonth && b.date.slice(5,7) !== selectedMonth) return false;
+      }
+      if(selectedExactDate && b.date !== selectedExactDate) return false;
       if(searchTerm){
         const t = searchTerm.toLowerCase();
         if(!(b.title||"").toLowerCase().includes(t) && !(b.author||"").toLowerCase().includes(t)) return false;
@@ -657,27 +701,30 @@
     if(!document.getElementById("headerEl")){
       app.innerHTML = `<header id="headerEl"></header><main><div id="resultsArea"></div></main>`;
     }
+    const prevScrollEl = document.querySelector(".adv-panel-scroll");
+    const prevScrollTop = prevScrollEl ? prevScrollEl.scrollTop : 0;
     renderHeaderContent();
     renderFilterPanel();
     renderResultsContent();
+    const newScrollEl = document.querySelector(".adv-panel-scroll");
+    if(newScrollEl) newScrollEl.scrollTop = prevScrollTop;
   }
 
   function renderHeaderContent(){
     const headerEl = document.getElementById("headerEl");
-    const advCount = (filterCategory!=="全部"?1:0) + (favOnly?1:0) + selectedRatings.length + selectedTags.length;
+    const advCount = (filterCategory!=="全部"?1:0) + (favOnly?1:0) + selectedRatings.length + selectedTags.length + excludedTags.length + (selectedYear?1:0) + (selectedExactDate?1:0);
     headerEl.innerHTML = `
       <div class="header-row">
         <div class="brand">
-          <button type="button" class="brand-mark serif" id="themeToggle" title="切換深色模式">☾</button>
+          <button type="button" class="brand-mark serif" id="themeToggle" title="深色模式">☾</button>
           <div class="brand-text serif">Good Night.</div>
         </div>
         <div class="search-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="searchInput" placeholder="搜尋書名或作者" value="${escapeHtml(searchTerm)}">
+          <input type="text" id="searchInput" placeholder="搜尋書名或作者…" value="${escapeHtml(searchTerm)}">
         </div>
-        <button class="pill adv-toggle ${advOpen?'open':''}" id="advToggleBtn">
+        <button class="pill adv-toggle-inline ${advOpen?'open':''}" id="advToggleBtn">
           篩選
-          ${advCount ? `<span class="adv-badge">${advCount}</span>` : ""}
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
         <button class="add-btn" id="openAdd">
@@ -714,40 +761,64 @@
 
   function renderFilterPanel(){
     const panelArea = document.getElementById("filterPanelArea");
-    panelArea.addEventListener("click", e=>{ e.stopPropagation(); }); 
+    panelArea.addEventListener("click", e=>{ e.stopPropagation(); });
+    const advCount = (filterCategory!=="全部"?1:0) + (favOnly?1:0) + selectedRatings.length + selectedTags.length + excludedTags.length + (selectedYear?1:0) + (selectedExactDate?1:0);
+    const hasActiveFilter = filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length||excludedTags.length||selectedYear||selectedExactDate;
     panelArea.innerHTML = `
       <div class="adv-panel ${advOpen?'open':''}">
         <div class="adv-panel-inner">
-          <div class="adv-row">
-            <div class="adv-row-label">分類篩選</div>
-            <div class="adv-chips" id="categoryChips">
-              <button type="button" class="chip ${filterCategory==='全部'?'active':''}" data-cat="全部">全部</button>
-              ${CATEGORIES.map(c=>`
-                <button type="button" class="chip ${filterCategory===c.key?'active':''}" data-cat="${c.key}"
-                  ${filterCategory===c.key ? `style="background:${c.color};border-color:${c.color};color:${c.activeText};"` : ""}>${c.key}</button>
-              `).join("")}
-              <button type="button" class="chip fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 我的收藏</button>
+          <div class="adv-panel-scroll">
+            <div class="adv-row">
+              <div class="adv-row-label">分類篩選</div>
+              <div class="adv-chips" id="categoryChips">
+                <button type="button" class="chip ${filterCategory==='全部'?'active':''}" data-cat="全部">全部</button>
+                ${CATEGORIES.map(c=>`
+                  <button type="button" class="chip ${filterCategory===c.key?'active':''}" data-cat="${c.key}"
+                    ${filterCategory===c.key ? `style="background:${c.color};border-color:${c.color};color:${c.activeText};"` : ""}>${c.key}</button>
+                `).join("")}
+                <button type="button" class="chip fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 我的收藏</button>
+              </div>
             </div>
-          </div>
-          <div class="adv-row">
-            <div class="adv-row-label">評分篩選</div>
-            <div class="adv-chips" id="ratingChips">
-              ${[5,4,3,2,1,0].map(n=>`
-                <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${n===0 ? '☆' : '★'.repeat(n)}</button>
-              `).join("")}
-            </div>
-          </div>
-          <div class="adv-row">
-            <div class="adv-row-label">標籤篩選</div>
-            ${allTags().length ? `
-              <div class="adv-chips" id="tagChips">
-                ${allTags().map(t=>`
-                  <button type="button" class="chip ${selectedTags.includes(t)?'active':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>
+            <div class="adv-row">
+              <div class="adv-row-label">評分篩選</div>
+              <div class="adv-chips" id="ratingChips">
+                ${[5,4,3,2,1,0].map(n=>`
+                  <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${n===0 ? '☆' : '★'.repeat(n)}</button>
                 `).join("")}
               </div>
-            ` : `<div class="adv-empty-note">還沒有任何標籤，新增閱讀紀錄時可以自訂標籤。</div>`}
+            </div>
+            <div class="adv-row">
+              <div class="adv-row-label">標籤篩選</div>
+              ${allTags().length ? `
+                <div class="adv-chips" id="tagChips">
+                  ${allTags().map(t=>{
+                    const isIncluded = selectedTags.includes(t);
+                    const isExcluded = excludedTags.includes(t);
+                    return `<button type="button" class="chip ${isIncluded?'active':''} ${isExcluded?'excluded':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`;
+                  }).join("")}
+                </div>
+              ` : `<div class="adv-empty-note">還沒有任何標籤，新增閱讀紀錄時可以自訂標籤。</div>`}
+            </div>
+            <div class="adv-row">
+              <div class="adv-row-label">日期篩選</div>
+              <div class="adv-date-filters">
+                <select class="date-filter-select year-select" id="yearFilterSelect">
+                  <option value="">年份不限</option>
+                  ${allYears().map(y=>`<option value="${y}" ${selectedYear===y?'selected':''}>${y}年</option>`).join("")}
+                </select>
+                <select class="date-filter-select month-select" id="monthFilterSelect" ${!selectedYear ? 'disabled' : ''}>
+                  <option value="">月份不限</option>
+                  ${Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0')).map(m=>`<option value="${m}" ${selectedMonth===m?'selected':''}>${parseInt(m,10)}月</option>`).join("")}
+                </select>
+                <input type="date" class="date-filter-select" id="exactDateFilterInput" value="${selectedExactDate}">
+                ${selectedExactDate ? `<button type="button" class="adv-date-exact-clear" id="exactDateClearBtn">清除</button>` : ""}
+              </div>
+            </div>
           </div>
-          ${(filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length) ? `<button class="adv-clear" id="advClearBtn">清除篩選條件</button>` : ""}
+          <div class="adv-panel-footer">
+            <span class="adv-filter-status">${advCount ? `已篩選 ${advCount} 個條件` : "尚無篩選條件"}</span>
+            ${hasActiveFilter ? `<button class="adv-clear" id="advClearBtn">清除篩選條件</button>` : ""}
+          </div>
         </div>
       </div>
     `;
@@ -767,12 +838,52 @@
         });
       });
     }
+    const yearSel = document.getElementById("yearFilterSelect");
+    if(yearSel){
+      yearSel.addEventListener("change", ()=>{
+        selectedYear = yearSel.value;
+        if(!selectedYear) selectedMonth = "";
+        advOpen = true;
+        renderApp();
+      });
+    }
+    const monthSel = document.getElementById("monthFilterSelect");
+    if(monthSel){
+      monthSel.addEventListener("change", ()=>{
+        selectedMonth = monthSel.value;
+        advOpen = true;
+        renderApp();
+      });
+    }
+    const exactDateInput = document.getElementById("exactDateFilterInput");
+    if(exactDateInput){
+      exactDateInput.addEventListener("change", ()=>{
+        selectedExactDate = exactDateInput.value;
+        advOpen = true;
+        renderApp();
+      });
+    }
+    const exactDateClearBtn = document.getElementById("exactDateClearBtn");
+    if(exactDateClearBtn){
+      exactDateClearBtn.addEventListener("click", ()=>{
+        selectedExactDate = "";
+        advOpen = true;
+        renderApp();
+      });
+    }
     const tagChipsEl = document.getElementById("tagChips");
     if(tagChipsEl){
       tagChipsEl.querySelectorAll("[data-tag]").forEach(btn=>{
         btn.addEventListener("click", ()=>{
           const t = btn.getAttribute("data-tag");
-          selectedTags = selectedTags.includes(t) ? selectedTags.filter(x=>x!==t) : [...selectedTags, t];
+          if(selectedTags.includes(t)){
+            selectedTags = selectedTags.filter(x=>x!==t);
+            excludedTags = [...excludedTags, t];
+          } else if(excludedTags.includes(t)){
+            excludedTags = excludedTags.filter(x=>x!==t);
+          } else {
+            selectedTags = [...selectedTags, t];
+          }
           advOpen = true;
           renderApp();
         });
@@ -782,7 +893,8 @@
     if(advClearBtn){
       advClearBtn.addEventListener("click", ()=>{
         filterCategory = "全部"; favOnly = false;
-        selectedRatings = []; selectedTags = []; advOpen = true; renderApp();
+        selectedRatings = []; selectedTags = []; excludedTags = [];
+        selectedYear = ""; selectedMonth = ""; selectedExactDate = ""; advOpen = true; renderApp();
       });
     }
   }
@@ -792,7 +904,7 @@
     if(!resultsArea) return;
     const list = filteredBooks();
     resultsArea.innerHTML = `
-      <div class="count-row">累計閱讀 ${list.length} 本書${(searchTerm||filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length) ? "（已篩選）" : ""}</div>
+      <div class="count-row">累計閱讀 ${list.length} 本書${(searchTerm||filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length||excludedTags.length||selectedYear||selectedExactDate) ? "（已篩選）" : ""}</div>
       <div class="grid">
         ${list.length ? list.map(cardHtml).join("") : emptyStateHtml()}
       </div>
@@ -815,7 +927,7 @@
     const hasAny = books.length>0;
     return `
       <div class="empty">
-        <div class="empty-mark">📖</div>
+        <div class="empty-mark">✉</div>
         <h3>${hasAny ? "沒有符合條件的書" : "書櫃還是空的"}</h3>
         <p>${hasAny ? "試著調整篩選條件或搜尋關鍵字。" : "點擊右上角「新增紀錄」，寫下第一本你讀過的書。"}</p>
       </div>
@@ -878,7 +990,7 @@
         <div class="view-modal-top">
           <div>
             <p class="card-title serif" style="margin:0;">${escapeHtml(b.title)}</p>
-            <p class="card-author" style="margin-top:4px;">${escapeHtml(b.author || "作者未填")}</p>
+            <p class="card-author" style="margin-top:4px;">${escapeHtml(b.author || "（未知）")}</p>
           </div>
           <div class="view-modal-actions">
             <button type="button" id="viewEditBtn" title="編輯">
@@ -900,7 +1012,7 @@
         <div class="view-row"><span class="view-label">日期</span><span class="view-value">${escapeHtml(b.date||"—")}</span></div>
         <hr class="view-divider">
         <div class="view-section-label">心得</div>
-        <p class="card-review-full" style="margin-bottom:8px;">${escapeHtml(b.review) || "（尚未留下心得）"}</p>
+        <p class="card-review-full" style="margin-bottom:8px;">${escapeHtml(b.review) || "尚未留下心得…"}</p>
         </div>
         `;
     
@@ -984,7 +1096,7 @@
         <div class="field">
           <label>作品標籤</label>
           <div style="position:relative;">
-            <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="多個標籤以半形逗號分隔。（例：現代, 校園…）" autocomplete="off">
+            <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="例：現代, 校園…" autocomplete="off">
             <div class="tag-suggest-dropdown" id="tagSuggestDropdown" style="display:none;"></div>
           </div>
           <p class="field-hint">※無固定清單，可自訂新增。</p>
