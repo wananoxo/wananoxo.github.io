@@ -84,7 +84,7 @@
   }
   .auth-card::before{
     content:"";position:absolute;top:0;left:0;width:8px;height:100%;
-    background:#BB8B6C;
+    background:#A47864;
   }
   .auth-title{font-size:26px;font-weight:700;margin:0 0 6px;letter-spacing:.02em;}
   .auth-sub{font-size:13px;color:var(--ink-soft);margin:0 0 28px;line-height:1.6;}
@@ -176,7 +176,6 @@
     padding:0 4px;border-radius:999px;background:var(--accent);color:var(--accent-ink);
     font-size:10px;font-weight:700;
   }
-
   .adv-panel{
     position:absolute;top:100%;left:0;right:0;z-index:15;
     max-width:1180px;margin:0 auto;padding:0 28px;
@@ -189,8 +188,10 @@
     padding:14px 28px 20px;transform:translateY(0);
   }
   .adv-panel-inner{
-    background:var(--bg-soft);border:1px solid var(--card-border);border-radius:16px;
-    box-shadow:var(--shadow-hover);overflow:hidden;
+    background:color-mix(in srgb, var(--bg-soft) 90%, transparent);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border:1px solid var(--card-border);border-radius:16px;
+    box-shadow:var(--shadow-panel);overflow:hidden;
   }
   .adv-panel-scroll{
     height:min(420px, 55vh);overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px;
@@ -208,13 +209,18 @@
     background:var(--card);color:var(--ink-soft);font-size:12px;font-weight:500;transition:all .15s ease;
   }
   .chip.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
-  .chip.excluded{background:var(--spine-female);color:#fff;border-color:var(--spine-female);text-decoration:line-through;}
+  .chip.excluded{background:var(--spine-female);color:#fff;border-color:#A47864;text-decoration:line-through;}
   .adv-date-filters{display:flex;gap:10px;}
   .date-filter-select{
-    flex:1;padding:8px 10px;border-radius:10px;border:1px solid var(--card-border);
-    background:var(--card);color:var(--ink);font-size:13px;outline:none;
+    padding:8px 10px;border-radius:10px;border:1px solid var(--card-border);
+    background:var(--card);color:var(--ink);font-size:13px;outline:none;flex:none;
   }
+  .date-filter-select.year-select{width:112px;}
+  .date-filter-select.month-select{width:92px;}
   .date-filter-select:disabled{opacity:.5;cursor:not-allowed;}
+  .adv-date-exact{display:flex;align-items:center;gap:10px;margin-top:10px;}
+  .adv-date-exact-label{font-size:12px;color:var(--ink-soft);flex-shrink:0;}
+  .adv-date-exact-clear{background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;padding:0;}
   .adv-empty-note{font-size:11.5px;color:var(--ink-faint);}
   .adv-clear{
     align-self:flex-start;background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;padding:2px 0;
@@ -437,6 +443,7 @@
   let excludedTags = [];      // e.g. ["虐"] — must NOT have any of these
   let selectedYear = "";      // e.g. "2026" — "" means unrestricted
   let selectedMonth = "";     // e.g. "07" — "" means unrestricted (only applies when selectedYear is set)
+  let selectedExactDate = ""; // e.g. "2026-07-20"
   let isComposing = false;    // true while an IME (e.g. 注音) composition is in progress
 
   const app = document.getElementById("app");
@@ -672,6 +679,8 @@
         if(!b.date || b.date.slice(0,4) !== selectedYear) return false;
         if(selectedMonth && b.date.slice(5,7) !== selectedMonth) return false;
       }
+      if(selectedExactDate && b.date !== selectedExactDate) return false;
+      }
       if(searchTerm){
         const t = searchTerm.toLowerCase();
         if(!(b.title||"").toLowerCase().includes(t) && !(b.author||"").toLowerCase().includes(t)) return false;
@@ -746,122 +755,148 @@
   }
 
   function renderFilterPanel(){
-  const panelArea = document.getElementById("filterPanelArea");
-  panelArea.addEventListener("click", e=>{ e.stopPropagation(); }); 
-  const hasActiveFilter = filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length||excludedTags.length||selectedYear;
-  panelArea.innerHTML = `
-    <div class="adv-panel ${advOpen?'open':''}">
-      <div class="adv-panel-inner">
-        <div class="adv-panel-scroll">
-          <div class="adv-row">
-            <div class="adv-row-label">分類篩選</div>
-            <div class="adv-chips" id="categoryChips">
-              <button type="button" class="chip ${filterCategory==='全部'?'active':''}" data-cat="全部">全部</button>
-              ${CATEGORIES.map(c=>`
-                <button type="button" class="chip ${filterCategory===c.key?'active':''}" data-cat="${c.key}"
-                  ${filterCategory===c.key ? `style="background:${c.color};border-color:${c.color};color:${c.activeText};"` : ""}>${c.key}</button>
-              `).join("")}
-              <button type="button" class="chip fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 我的收藏</button>
-            </div>
-          </div>
-          <div class="adv-row">
-            <div class="adv-row-label">評分篩選</div>
-            <div class="adv-chips" id="ratingChips">
-              ${[5,4,3,2,1,0].map(n=>`
-                <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${n===0 ? '☆' : '★'.repeat(n)}</button>
-              `).join("")}
-            </div>
-          </div>
-          <div class="adv-row">
-            <div class="adv-row-label">日期篩選</div>
-            <div class="adv-date-filters">
-              <select class="date-filter-select" id="yearFilterSelect">
-                <option value="">年份不限</option>
-                ${allYears().map(y=>`<option value="${y}" ${selectedYear===y?'selected':''}>${y}年</option>`).join("")}
-              </select>
-              <select class="date-filter-select" id="monthFilterSelect" ${!selectedYear ? 'disabled' : ''}>
-                <option value="">月份不限</option>
-                ${Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0')).map(m=>`<option value="${m}" ${selectedMonth===m?'selected':''}>${parseInt(m,10)}月</option>`).join("")}
-              </select>
-            </div>
-          </div>
-          <div class="adv-row">
-            <div class="adv-row-label">標籤篩選（再點一次可切換為排除）</div>
-            ${allTags().length ? `
-              <div class="adv-chips" id="tagChips">
-                ${allTags().map(t=>{
-                  const isIncluded = selectedTags.includes(t);
-                  const isExcluded = excludedTags.includes(t);
-                  return `<button type="button" class="chip ${isIncluded?'active':''} ${isExcluded?'excluded':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`;
-                }).join("")}
+    const panelArea = document.getElementById("filterPanelArea");
+    const prevScrollEl = panelArea.querySelector(".adv-panel-scroll");
+    const prevScrollTop = prevScrollEl ? prevScrollEl.scrollTop : 0;
+    panelArea.addEventListener("click", e=>{ e.stopPropagation(); });
+    const hasActiveFilter = filterCategory!=="全部"||favOnly||selectedRatings.length||selectedTags.length||excludedTags.length||selectedYear||selectedExactDate;
+    panelArea.innerHTML = `
+      <div class="adv-panel ${advOpen?'open':''}">
+        <div class="adv-panel-inner">
+          <div class="adv-panel-scroll">
+            <div class="adv-row">
+              <div class="adv-row-label">分類篩選</div>
+              <div class="adv-chips" id="categoryChips">
+                <button type="button" class="chip ${filterCategory==='全部'?'active':''}" data-cat="全部">全部</button>
+                ${CATEGORIES.map(c=>`
+                  <button type="button" class="chip ${filterCategory===c.key?'active':''}" data-cat="${c.key}"
+                    ${filterCategory===c.key ? `style="background:${c.color};border-color:${c.color};color:${c.activeText};"` : ""}>${c.key}</button>
+                `).join("")}
+                <button type="button" class="chip fav-toggle ${favOnly?'active':''}" id="favToggleBtn">★ 我的收藏</button>
               </div>
-            ` : `<div class="adv-empty-note">還沒有任何標籤，新增閱讀紀錄時可以自訂標籤。</div>`}
+            </div>
+            <div class="adv-row">
+              <div class="adv-row-label">評分篩選</div>
+              <div class="adv-chips" id="ratingChips">
+                ${[5,4,3,2,1,0].map(n=>`
+                  <button type="button" class="chip ${selectedRatings.includes(n)?'active':''}" data-rating="${n}">${n===0 ? '☆' : '★'.repeat(n)}</button>
+                `).join("")}
+              </div>
+            </div>
+            <div class="adv-row">
+              <div class="adv-row-label">標籤篩選（再點一次可切換為排除）</div>
+              ${allTags().length ? `
+                <div class="adv-chips" id="tagChips">
+                  ${allTags().map(t=>{
+                    const isIncluded = selectedTags.includes(t);
+                    const isExcluded = excludedTags.includes(t);
+                    return `<button type="button" class="chip ${isIncluded?'active':''} ${isExcluded?'excluded':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`;
+                  }).join("")}
+                </div>
+              ` : `<div class="adv-empty-note">還沒有任何標籤，新增閱讀紀錄時可以自訂標籤。</div>`}
+            </div>
+            <div class="adv-row">
+              <div class="adv-row-label">日期篩選</div>
+              <div class="adv-date-filters">
+                <select class="date-filter-select year-select" id="yearFilterSelect">
+                  <option value="">年份不限</option>
+                  ${allYears().map(y=>`<option value="${y}" ${selectedYear===y?'selected':''}>${y}年</option>`).join("")}
+                </select>
+                <select class="date-filter-select month-select" id="monthFilterSelect" ${!selectedYear ? 'disabled' : ''}>
+                  <option value="">月份不限</option>
+                  ${Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0')).map(m=>`<option value="${m}" ${selectedMonth===m?'selected':''}>${parseInt(m,10)}月</option>`).join("")}
+                </select>
+              </div>
+              <div class="adv-date-exact">
+                <span class="adv-date-exact-label">指定日期</span>
+                <input type="date" class="date-filter-select" id="exactDateFilterInput" value="${selectedExactDate}">
+                ${selectedExactDate ? `<button type="button" class="adv-date-exact-clear" id="exactDateClearBtn">清除</button>` : ""}
+              </div>
+            </div>
           </div>
+          ${hasActiveFilter ? `<div class="adv-panel-footer"><button class="adv-clear" id="advClearBtn">清除篩選條件</button></div>` : ""}
         </div>
-        ${hasActiveFilter ? `<div class="adv-panel-footer"><button class="adv-clear" id="advClearBtn">清除篩選條件</button></div>` : ""}
       </div>
-    </div>
-  `;
+    `;
 
-  document.getElementById("favToggleBtn").addEventListener("click", ()=>{ favOnly = !favOnly; renderApp(); });
-  document.querySelectorAll("#categoryChips [data-cat]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{ filterCategory = btn.getAttribute("data-cat"); renderApp(); });
-  });
-  const ratingChipsEl = document.getElementById("ratingChips");
-  if(ratingChipsEl){
-    ratingChipsEl.querySelectorAll("[data-rating]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const n = parseInt(btn.getAttribute("data-rating"),10);
-        selectedRatings = selectedRatings.includes(n) ? selectedRatings.filter(x=>x!==n) : [...selectedRatings, n];
+    const newScrollEl = panelArea.querySelector(".adv-panel-scroll");
+    if(newScrollEl) newScrollEl.scrollTop = prevScrollTop;
+
+    document.getElementById("favToggleBtn").addEventListener("click", ()=>{ favOnly = !favOnly; renderApp(); });
+    document.querySelectorAll("#categoryChips [data-cat]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{ filterCategory = btn.getAttribute("data-cat"); renderApp(); });
+    });
+    const ratingChipsEl = document.getElementById("ratingChips");
+    if(ratingChipsEl){
+      ratingChipsEl.querySelectorAll("[data-rating]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const n = parseInt(btn.getAttribute("data-rating"),10);
+          selectedRatings = selectedRatings.includes(n) ? selectedRatings.filter(x=>x!==n) : [...selectedRatings, n];
+          advOpen = true;
+          renderApp();
+        });
+      });
+    }
+    const yearSel = document.getElementById("yearFilterSelect");
+    if(yearSel){
+      yearSel.addEventListener("change", ()=>{
+        selectedYear = yearSel.value;
+        if(!selectedYear) selectedMonth = "";
         advOpen = true;
         renderApp();
       });
-    });
-  }
-  const yearSel = document.getElementById("yearFilterSelect");
-  if(yearSel){
-    yearSel.addEventListener("change", ()=>{
-      selectedYear = yearSel.value;
-      if(!selectedYear) selectedMonth = "";
-      advOpen = true;
-      renderApp();
-    });
-  }
-  const monthSel = document.getElementById("monthFilterSelect");
-  if(monthSel){
-    monthSel.addEventListener("change", ()=>{
-      selectedMonth = monthSel.value;
-      advOpen = true;
-      renderApp();
-    });
-  }
-  const tagChipsEl = document.getElementById("tagChips");
-  if(tagChipsEl){
-    tagChipsEl.querySelectorAll("[data-tag]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const t = btn.getAttribute("data-tag");
-        if(selectedTags.includes(t)){
-          selectedTags = selectedTags.filter(x=>x!==t);
-          excludedTags = [...excludedTags, t];
-        } else if(excludedTags.includes(t)){
-          excludedTags = excludedTags.filter(x=>x!==t);
-        } else {
-          selectedTags = [...selectedTags, t];
-        }
+    }
+    const monthSel = document.getElementById("monthFilterSelect");
+    if(monthSel){
+      monthSel.addEventListener("change", ()=>{
+        selectedMonth = monthSel.value;
         advOpen = true;
         renderApp();
       });
-    });
-  }
-  const advClearBtn = document.getElementById("advClearBtn");
-  if(advClearBtn){
-    advClearBtn.addEventListener("click", ()=>{
-      filterCategory = "全部"; favOnly = false;
-      selectedRatings = []; selectedTags = []; excludedTags = [];
-      selectedYear = ""; selectedMonth = ""; advOpen = true; renderApp();
-    });
-  }
-}
+    }
+    const exactDateInput = document.getElementById("exactDateFilterInput");
+    if(exactDateInput){
+      exactDateInput.addEventListener("change", ()=>{
+        selectedExactDate = exactDateInput.value;
+        advOpen = true;
+        renderApp();
+      });
+    }
+    const exactDateClearBtn = document.getElementById("exactDateClearBtn");
+    if(exactDateClearBtn){
+      exactDateClearBtn.addEventListener("click", ()=>{
+        selectedExactDate = "";
+        advOpen = true;
+        renderApp();
+      });
+    }
+    const tagChipsEl = document.getElementById("tagChips");
+    if(tagChipsEl){
+      tagChipsEl.querySelectorAll("[data-tag]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const t = btn.getAttribute("data-tag");
+          if(selectedTags.includes(t)){
+            selectedTags = selectedTags.filter(x=>x!==t);
+            excludedTags = [...excludedTags, t];
+          } else if(excludedTags.includes(t)){
+            excludedTags = excludedTags.filter(x=>x!==t);
+          } else {
+            selectedTags = [...selectedTags, t];
+          }
+          advOpen = true;
+          renderApp();
+        });
+      });
+    }
+    const advClearBtn = document.getElementById("advClearBtn");
+    if(advClearBtn){
+      advClearBtn.addEventListener("click", ()=>{
+        filterCategory = "全部"; favOnly = false;
+        selectedRatings = []; selectedTags = []; excludedTags = [];
+        selectedYear = ""; selectedMonth = ""; selectedExactDate = ""; advOpen = true; renderApp();
+      });
+    }
+  }  
 
   function renderResultsContent(){
     const resultsArea = document.getElementById("resultsArea");
