@@ -156,6 +156,23 @@
   .add-btn:hover{box-shadow:var(--shadow-hover);transform:translateY(-1px);}
   .user-chip{font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
   .user-chip span{font-weight:600;color:var(--ink);}
+  .user-menu{position:relative;}
+  .user-menu-dropdown{
+    position:absolute;top:calc(100% + 8px);right:0;min-width:230px;z-index:30;
+    background:var(--card);border:1px solid var(--card-border);border-radius:14px;
+    box-shadow:var(--shadow-hover);padding:8px;
+    opacity:0;pointer-events:none;transform:translateY(-6px);
+    transition:opacity .15s ease, transform .15s ease;
+  }
+  .user-menu-dropdown.open{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .user-menu-email{padding:8px 10px;font-size:12px;color:var(--ink-soft);font-weight:600;word-break:break-all;}
+  .user-menu-divider{height:1px;background:var(--card-border);margin:6px 4px;}
+  .user-menu-item{
+    display:block;width:100%;text-align:left;padding:9px 10px;border:none;background:none;
+    border-radius:9px;font-size:13px;color:var(--ink);cursor:pointer;transition:background .15s ease;
+  }
+  .user-menu-item:hover{background:var(--bg-soft);}
+  .user-menu-item.user-menu-logout{color:var(--accent);}
 
   /* ---------- filter bar ---------- */
   .pill{
@@ -393,7 +410,7 @@
 </style>
 </head>
 <body>
-<div id="app"><div class="loading-screen"><div class="spinner"></div>正在載入書櫃…</div></div>
+<div id="app"><div class="loading-screen"><div class="spinner"></div>正在前往書櫃…</div></div>
 
 <script>
   // ====================================================================
@@ -440,6 +457,7 @@
   let searchTerm = "";
   let editingId = null; // null = not editing / add mode when modal open
   let advOpen = false;
+  let userMenuOpen = false;
   let selectedRatings = [];   // e.g. [4,5]
   let selectedTags = [];      // e.g. ["校園","甜文"]
   let excludedTags = [];      // 排除清單，有這些標籤的書會被濾掉
@@ -485,6 +503,9 @@
       "auth/too-many-requests": "嘗試次數過多，請稍後再試",
       "auth/network-request-failed": "網路連線失敗，請確認網路狀態",
       "auth/api-key-not-valid.-please-pass-a-valid-api-key.": "Firebase 設定尚未填入，請聯絡網站管理者",
+      "auth/requires-recent-login": "驗證已過期，請重新輸入目前密碼",
+      "auth/user-mismatch": "目前密碼與帳號不符，請重新確認",
+      "auth/operation-not-allowed": "此操作目前未開放，請聯絡網站管理者",
     };
     return map[e.code] || (e.message || "發生錯誤，請稍後再試");
   }
@@ -543,6 +564,94 @@
     selectedRatings = []; selectedTags = []; excludedTags = [];
     selectedYear = ""; selectedMonth = ""; selectedExactDate = ""; advOpen = false;
     try{ await auth.signOut(); }catch(e){ toast("登出失敗，請稍後再試"); }
+  }
+
+  function openAccountSettingsModal(){
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.innerHTML = `
+      <div class="modal">
+        <h2 class="serif">帳號設定</h2>
+        <div class="auth-error" id="acctErr" style="display:none;"></div>
+        <div class="field">
+          <label>目前密碼（驗證身份用）</label>
+          <input type="password" id="acctCurrentPass" autocomplete="current-password" placeholder="請輸入目前密碼">
+        </div>
+        <div class="field">
+          <label>新 Email（不修改請留空）</label>
+          <input type="email" id="acctNewEmail" autocomplete="email" placeholder="${escapeHtml(currentUser)}">
+        </div>
+        <div class="field">
+          <label>新密碼（不修改請留空）</label>
+          <input type="password" id="acctNewPass" autocomplete="new-password" placeholder="至少 6 個字元">
+        </div>
+        <div class="field">
+          <label>確認新密碼</label>
+          <input type="password" id="acctNewPassConfirm" autocomplete="new-password" placeholder="再輸入一次新密碼">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-ghost" id="acctCancel">取消</button>
+          <button class="btn-primary" id="acctSave">儲存變更</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const errBox = overlay.querySelector("#acctErr");
+    function close(){ overlay.remove(); }
+    overlay.addEventListener("click", e=>{ if(e.target===overlay) close(); });
+    overlay.querySelector("#acctCancel").addEventListener("click", close);
+
+    overlay.querySelector("#acctSave").addEventListener("click", async ()=>{
+      errBox.style.display = "none";
+      const currentPass = overlay.querySelector("#acctCurrentPass").value;
+      const newEmail = overlay.querySelector("#acctNewEmail").value.trim();
+      const newPass = overlay.querySelector("#acctNewPass").value;
+      const newPassConfirm = overlay.querySelector("#acctNewPassConfirm").value;
+
+      if(!newEmail && !newPass){
+        errBox.textContent = "請至少填寫要修改的 Email 或密碼";
+        errBox.style.display = "block";
+        return;
+      }
+      if(newPass && newPass.length < 6){
+        errBox.textContent = "新密碼至少需要 6 個字元";
+        errBox.style.display = "block";
+        return;
+      }
+      if(newPass && newPass !== newPassConfirm){
+        errBox.textContent = "兩次輸入的新密碼不一致";
+        errBox.style.display = "block";
+        return;
+      }
+      if(!currentPass){
+        errBox.textContent = "請輸入目前密碼以驗證身份";
+        errBox.style.display = "block";
+        return;
+      }
+
+      const saveBtn = overlay.querySelector("#acctSave");
+      saveBtn.disabled = true;
+      try{
+        const user = auth.currentUser;
+        const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPass);
+        await user.reauthenticateWithCredential(credential);
+
+        if(newEmail && newEmail !== user.email){
+          await user.verifyBeforeUpdateEmail(newEmail);
+          toast("已寄送驗證信到新信箱，請點擊信中連結完成信箱變更");
+        }
+        if(newPass){
+          await user.updatePassword(newPass);
+          toast("密碼已更新");
+        }
+        close();
+      }catch(e){
+        errBox.textContent = friendlyAuthError(e);
+        errBox.style.display = "block";
+        saveBtn.disabled = false;
+      }
+    });
   }
 
   // ---------------- BOOKS (Firestore, real-time) ----------------
@@ -615,12 +724,13 @@
             <label>密碼</label>
             <input type="password" id="authPass" autocomplete="${mode==='login'?'current-password':'new-password'}" placeholder="＊＊＊＊＊＊">
           </div>
+          ${mode==="login" ? `<div style="text-align:right;margin:-10px 0 16px;"><button type="button" id="forgotPasswordBtn" style="background:none;border:none;color:var(--accent);font-size:12.5px;font-weight:600;padding:0;cursor:pointer;">忘記密碼？</button></div>` : ""}
           <button class="btn-primary" id="authSubmit">${mode==="login" ? "登入" : "註冊"}</button>
           <div class="auth-switch">
             ${mode==="login" ? "還沒有帳號？" : "已經有帳號了？"}
             <button id="authToggle">${mode==="login" ? "註冊新帳號" : "直接登入"}</button>
           </div>
-          <p class="auth-note">※為保障您的資料安全，請勿使用重要密碼，並妥善保管您的資料。</p>
+          <p class="auth-note">※請勿使用重要密碼，並妥善保管您的資料。</p>
         </div>
       </div>
     `;
@@ -641,6 +751,27 @@
     passInput.addEventListener("keydown", e=>{ if(e.key==="Enter") doSubmit(); });
     userInput.addEventListener("keydown", e=>{ if(e.key==="Enter") passInput.focus(); });
     document.getElementById("authToggle").addEventListener("click", ()=>renderAuth(mode==="login"?"register":"login"));
+    const forgotBtn = document.getElementById("forgotPasswordBtn");
+    if(forgotBtn){
+      forgotBtn.addEventListener("click", async ()=>{
+        const email = userInput.value.trim();
+        errBox.style.display = "none";
+        if(!email){
+          errBox.textContent = "請先輸入 Email，才能寄送重設密碼信";
+          errBox.style.display = "block";
+          return;
+        }
+        forgotBtn.disabled = true;
+        try{
+          await auth.sendPasswordResetEmail(email);
+          toast("重設密碼信已寄出，請至信箱查收");
+        }catch(e){
+          errBox.textContent = friendlyAuthError(e);
+          errBox.style.display = "block";
+        }
+        forgotBtn.disabled = false;
+      });
+    }
   }
 
   // ---------------- RENDER: STARS ----------------
@@ -716,12 +847,12 @@
     headerEl.innerHTML = `
       <div class="header-row">
         <div class="brand">
-          <button type="button" class="brand-mark serif" id="themeToggle" title="切換深色模式">☾</button>
+          <button type="button" class="brand-mark serif" id="themeToggle" title="深色模式">☾</button>
           <div class="brand-text serif">Good Night.</div>
         </div>
         <div class="search-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="searchInput" placeholder="搜尋書名或作者" value="${escapeHtml(searchTerm)}">
+          <input type="text" id="searchInput" placeholder="搜尋書名或作者…" value="${escapeHtml(searchTerm)}">
         </div>
         <button class="pill adv-toggle-inline ${advOpen?'open':''}" id="advToggleBtn">
           篩選
@@ -731,11 +862,17 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           新增紀錄
         </button>
-        <div class="user-chip">
-          <span>${escapeHtml(currentUser)}</span>
-          <button class="icon-btn" id="logoutBtn" title="登出" style="width:32px;height:32px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <div class="user-menu">
+          <button class="icon-btn" id="userMenuBtn" title="個人設定">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path></svg>
           </button>
+          <div class="user-menu-dropdown ${userMenuOpen?'open':''}" id="userMenuDropdown">
+            <div class="user-menu-email">${escapeHtml(currentUser)}</div>
+            <div class="user-menu-divider"></div>
+            <button type="button" class="user-menu-item" id="openAccountSettingsBtn">帳號設定（修改信箱、密碼）</button>
+            <div class="user-menu-divider"></div>
+            <button type="button" class="user-menu-item user-menu-logout" id="logoutBtn">登出</button>
+          </div>
         </div>
       </div>
       <div id="filterPanelArea"></div>
@@ -755,7 +892,18 @@
     });
     document.getElementById("openAdd").addEventListener("click", ()=>openModal());
     document.getElementById("themeToggle").addEventListener("click", toggleTheme);
-    document.getElementById("logoutBtn").addEventListener("click", handleLogout);
+    document.getElementById("userMenuBtn").addEventListener("click", (e)=>{
+      e.stopPropagation();
+      userMenuOpen = !userMenuOpen;
+      renderApp();
+    });
+    document.getElementById("userMenuDropdown").addEventListener("click", e=>{ e.stopPropagation(); });
+    document.getElementById("logoutBtn").addEventListener("click", ()=>{ userMenuOpen = false; handleLogout(); });
+    document.getElementById("openAccountSettingsBtn").addEventListener("click", ()=>{
+      userMenuOpen = false;
+      renderApp();
+      openAccountSettingsModal();
+    });
     document.getElementById("advToggleBtn").addEventListener("click", (e)=>{ e.stopPropagation(); advOpen = !advOpen; renderApp(); });
   }
 
@@ -788,7 +936,7 @@
               </div>
             </div>
             <div class="adv-row">
-              <div class="adv-row-label">標籤篩選（再點一次可切換為排除）</div>
+              <div class="adv-row-label">標籤篩選</div>
               ${allTags().length ? `
                 <div class="adv-chips" id="tagChips">
                   ${allTags().map(t=>{
@@ -929,7 +1077,7 @@
       <div class="empty">
         <div class="empty-mark">📖</div>
         <h3>${hasAny ? "沒有符合條件的書" : "書櫃還是空的"}</h3>
-        <p>${hasAny ? "試著調整篩選條件或搜尋關鍵字。" : "點擊右上角「新增紀錄」，寫下第一本你讀過的書。"}</p>
+        <p>${hasAny ? "Tips: 試著調整篩選條件或搜尋關鍵字。" : "Tips: 開始新增紀錄，寫下你讀過的第一本書。"}</p>
       </div>
     `;
   }
@@ -990,7 +1138,7 @@
         <div class="view-modal-top">
           <div>
             <p class="card-title serif" style="margin:0;">${escapeHtml(b.title)}</p>
-            <p class="card-author" style="margin-top:4px;">${escapeHtml(b.author || "作者未填")}</p>
+            <p class="card-author" style="margin-top:4px;">${escapeHtml(b.author || "（未知）")}</p>
           </div>
           <div class="view-modal-actions">
             <button type="button" id="viewEditBtn" title="編輯">
@@ -1012,7 +1160,7 @@
         <div class="view-row"><span class="view-label">日期</span><span class="view-value">${escapeHtml(b.date||"—")}</span></div>
         <hr class="view-divider">
         <div class="view-section-label">心得</div>
-        <p class="card-review-full" style="margin-bottom:8px;">${escapeHtml(b.review) || "（尚未留下心得）"}</p>
+        <p class="card-review-full" style="margin-bottom:8px;">${escapeHtml(b.review) || "尚未留下心得…"}</p>
         </div>
         `;
     
@@ -1096,7 +1244,7 @@
         <div class="field">
           <label>作品標籤</label>
           <div style="position:relative;">
-            <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="多個標籤以半形逗號分隔。（例：現代, 校園…）" autocomplete="off">
+            <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="例：現代, 校園…" autocomplete="off">
             <div class="tag-suggest-dropdown" id="tagSuggestDropdown" style="display:none;"></div>
           </div>
           <p class="field-hint">※無固定清單，可自訂新增。</p>
@@ -1231,7 +1379,7 @@
     });
   }
   document.addEventListener("click", ()=>{
-  if(advOpen){ advOpen = false; renderApp(); }
+  if(advOpen || userMenuOpen){ advOpen = false; userMenuOpen = false; renderApp(); }
 });
 
   init();
