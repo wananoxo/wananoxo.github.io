@@ -145,18 +145,27 @@
   .icon-btn{
     width:38px;height:38px;border-radius:11px;border:1px solid var(--card-border);
     background:var(--card);color:var(--ink);display:flex;align-items:center;justify-content:center;
-    transition:background .5s ease, box-shadow .15s ease;box-shadow:var(--shadow);
+    transition:background .3s ease, box-shadow .15s ease;box-shadow:var(--shadow);
   }
   .icon-btn:hover{
     color: #fffdfb;
     background: #9C6B63;
-    transition: opacity 5s ease;}
-  .add-btn{
-    display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:11px;border:none;
-    background:var(--accent);color:var(--accent-ink);font-size:13.5px;font-weight:600;box-shadow:var(--shadow);
-    transition:box-shadow .15s ease, transform .12s ease;
+    transition: opacity 3s ease;
   }
-  .add-btn:hover{box-shadow:var(--shadow-hover);transform:translateY(-1px);}
+  .fab-add{
+    position:fixed;right:70px;bottom:50px;z-index:40;
+    width:56px;height:56px;border-radius:50%;border:none;
+    background:var(--accent);color:var(--accent-ink);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:var(--shadow-hover);cursor:pointer;
+    transition:transform .3s ease, box-shadow .3s ease;
+  }
+  .fab-add:hover{
+    transform:scale(1.06);
+  }
+  @media (max-width:560px){
+    .fab-add{right:18px;bottom:18px;width:52px;height:52px;}
+  }
   .user-chip{font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
   .user-chip span{font-weight:600;color:var(--ink);}
   .user-menu{position:relative;}
@@ -499,7 +508,7 @@
     const map = {
       "auth/email-already-in-use": "此信箱已被註冊，請直接登入",
       "auth/invalid-email": "信箱格式不正確",
-      "auth/weak-password": "密碼至少需要 6 個字元",
+      "auth/weak-password": "密碼需要至少 6 個字元",
       "auth/user-not-found": "信箱或密碼不正確",
       "auth/wrong-password": "信箱或密碼不正確",
       "auth/invalid-credential": "信箱或密碼不正確",
@@ -548,7 +557,7 @@
       return false;
     }
     if(password.length < 6){
-      errBox.textContent = "密碼至少需要 6 個字元";
+      errBox.textContent = "密碼需要至少 6 個字元";
       errBox.style.display = "block";
       return false;
     }
@@ -590,7 +599,7 @@
         </div>
         <div class="field">
           <label>確認密碼</label>
-          <input type="password" id="acctNewPassConfirm" autocomplete="new-password" placeholder="再輸入一次新密碼">
+          <input type="password" id="acctNewPassConfirm" autocomplete="new-password" placeholder="再次輸入新的密碼">
         </div>
         <div class="modal-actions">
           <button class="btn-ghost" id="acctCancel">取消</button>
@@ -613,17 +622,17 @@
       const newPassConfirm = overlay.querySelector("#acctNewPassConfirm").value;
 
       if(!newEmail && !newPass){
-        errBox.textContent = "請至少填寫要修改的 Email 或密碼";
+        errBox.textContent = "尚未選擇更新信箱 / 密碼";
         errBox.style.display = "block";
         return;
       }
       if(newPass && newPass.length < 6){
-        errBox.textContent = "新密碼至少需要 6 個字元";
+        errBox.textContent = "密碼需要至少 6 個字元";
         errBox.style.display = "block";
         return;
       }
       if(newPass && newPass !== newPassConfirm){
-        errBox.textContent = "兩次輸入的新密碼不一致";
+        errBox.textContent = "新的密碼驗證失敗";
         errBox.style.display = "block";
         return;
       }
@@ -733,7 +742,7 @@
             ${mode==="login" ? "還沒有帳號？" : "已經有帳號了？"}
             <button id="authToggle">${mode==="login" ? "註冊新帳號" : "直接登入"}</button>
           </div>
-          <p class="auth-note">※請勿使用重要密碼，並妥善保管您的資料。</p>
+          <p class="auth-note">Paste: 本站尚無備份功能，請妥善保管您的資料。</p>
         </div>
       </div>
     `;
@@ -760,7 +769,7 @@
         const email = userInput.value.trim();
         errBox.style.display = "none";
         if(!email){
-          errBox.textContent = "請先輸入您的信箱";
+          errBox.textContent = "請輸入您的信箱";
           errBox.style.display = "block";
           return;
         }
@@ -834,6 +843,13 @@
     // container below it, so it scrolls away with the page instead of staying pinned.
     if(!document.getElementById("headerEl")){
       app.innerHTML = `<header id="headerEl"></header><main><div id="resultsArea"></div></main>`;
+      const fab = document.createElement("button");
+      fab.className = "fab-add";
+      fab.id = "fabAdd";
+      fab.title = "新增紀錄";
+      fab.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
+      fab.addEventListener("click", ()=>openModal());
+      document.body.appendChild(fab);
     }
     const prevScrollEl = document.querySelector(".adv-panel-scroll");
     const prevScrollTop = prevScrollEl ? prevScrollEl.scrollTop : 0;
@@ -860,10 +876,6 @@
         <button class="pill adv-toggle-inline ${advOpen?'open':''}" id="advToggleBtn">
           篩選
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        </button>
-        <button class="add-btn" id="openAdd">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          新增紀錄
         </button>
         <div class="user-menu">
           <button class="icon-btn" id="userMenuBtn" title="個人設定">
@@ -893,7 +905,6 @@
       searchTerm = e.target.value;
       renderResultsContent(); // only refresh the grid — never rebuild the header/input itself
     });
-    document.getElementById("openAdd").addEventListener("click", ()=>openModal());
     document.getElementById("themeToggle").addEventListener("click", toggleTheme);
     document.getElementById("userMenuBtn").addEventListener("click", (e)=>{
       e.stopPropagation();
@@ -1080,7 +1091,7 @@
       <div class="empty">
         <div class="empty-mark">📖</div>
         <h3>${hasAny ? "沒有符合條件的書" : "書櫃還是空的"}</h3>
-        <p>${hasAny ? "Tips: 試著調整篩選條件或搜尋關鍵字。" : "Tips: 開始新增紀錄，寫下你讀過的第一本書。"}</p>
+        <p>${hasAny ? "試著調整篩選條件或搜尋關鍵字。" : "開始新增紀錄，寫下你讀過的第一本書。"}</p>
       </div>
     `;
   }
@@ -1250,7 +1261,7 @@
             <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="例：現代, 校園…" autocomplete="off">
             <div class="tag-suggest-dropdown" id="tagSuggestDropdown" style="display:none;"></div>
           </div>
-          <p class="field-hint">※無固定清單，可自訂新增。</p>
+          <p class="field-hint">Tips: 輸入對應字元，可以快速填入已有標籤。</p>
         </div>
         <div class="field">
           <label>評分</label>
@@ -1374,8 +1385,8 @@
         currentUid = null;
         if(unsubscribeBooksFn){ unsubscribeBooksFn(); unsubscribeBooksFn = null; }
         books = [];
+        render();
       }
-      render();
     }, err=>{
       console.error(err);
       toast("登入狀態讀取失敗，請重新整理頁面");
