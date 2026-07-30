@@ -508,7 +508,7 @@
     const map = {
       "auth/email-already-in-use": "此信箱已被註冊，請直接登入",
       "auth/invalid-email": "信箱格式不正確",
-      "auth/weak-password": "密碼至少需要 6 個字元",
+      "auth/weak-password": "密碼需要至少 6 個字元",
       "auth/user-not-found": "信箱或密碼不正確",
       "auth/wrong-password": "信箱或密碼不正確",
       "auth/invalid-credential": "信箱或密碼不正確",
@@ -557,7 +557,7 @@
       return false;
     }
     if(password.length < 6){
-      errBox.textContent = "密碼至少需要 6 個字元";
+      errBox.textContent = "密碼需要至少 6 個字元";
       errBox.style.display = "block";
       return false;
     }
@@ -599,7 +599,7 @@
         </div>
         <div class="field">
           <label>確認密碼</label>
-          <input type="password" id="acctNewPassConfirm" autocomplete="new-password" placeholder="再輸入一次新密碼">
+          <input type="password" id="acctNewPassConfirm" autocomplete="new-password" placeholder="再次輸入新的密碼">
         </div>
         <div class="modal-actions">
           <button class="btn-ghost" id="acctCancel">取消</button>
@@ -622,17 +622,17 @@
       const newPassConfirm = overlay.querySelector("#acctNewPassConfirm").value;
 
       if(!newEmail && !newPass){
-        errBox.textContent = "請至少填寫要修改的 Email 或密碼";
+        errBox.textContent = "尚未選擇更新信箱 / 密碼";
         errBox.style.display = "block";
         return;
       }
       if(newPass && newPass.length < 6){
-        errBox.textContent = "新密碼至少需要 6 個字元";
+        errBox.textContent = "密碼需要至少 6 個字元";
         errBox.style.display = "block";
         return;
       }
       if(newPass && newPass !== newPassConfirm){
-        errBox.textContent = "兩次輸入的新密碼不一致";
+        errBox.textContent = "新的密碼驗證失敗";
         errBox.style.display = "block";
         return;
       }
@@ -742,7 +742,7 @@
             ${mode==="login" ? "還沒有帳號？" : "已經有帳號了？"}
             <button id="authToggle">${mode==="login" ? "註冊新帳號" : "直接登入"}</button>
           </div>
-          <p class="auth-note">※請勿使用重要密碼，並妥善保管您的資料。</p>
+          <p class="auth-note">Paste: 本站尚無備份功能，請妥善保管您的資料。</p>
         </div>
       </div>
     `;
@@ -769,7 +769,7 @@
         const email = userInput.value.trim();
         errBox.style.display = "none";
         if(!email){
-          errBox.textContent = "請先輸入您的信箱";
+          errBox.textContent = "請輸入您的信箱";
           errBox.style.display = "block";
           return;
         }
@@ -1091,7 +1091,7 @@
       <div class="empty">
         <div class="empty-mark">📖</div>
         <h3>${hasAny ? "沒有符合條件的書" : "書櫃還是空的"}</h3>
-        <p>${hasAny ? "Tips: 試著調整篩選條件或搜尋關鍵字。" : "Tips: 開始新增紀錄，寫下你讀過的第一本書。"}</p>
+        <p>${hasAny ? "試著調整篩選條件或搜尋關鍵字。" : "開始新增紀錄，寫下你讀過的第一本書。"}</p>
       </div>
     `;
   }
@@ -1261,7 +1261,7 @@
             <input type="text" id="mTags" value="${escapeHtml(tagsInputValue)}" placeholder="例：現代, 校園…" autocomplete="off">
             <div class="tag-suggest-dropdown" id="tagSuggestDropdown" style="display:none;"></div>
           </div>
-          <p class="field-hint">※無固定清單，可自訂新增。</p>
+          <p class="field-hint">Tips: 輸入對應字元，可以快速填入已有標籤。</p>
         </div>
         <div class="field">
           <label>評分</label>
