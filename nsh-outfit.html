@@ -1966,6 +1966,7 @@ function renderCards(list) {
     let imgIndex = 0;
 
     const imgEl = document.createElement("img");
+    imgEl.referrerPolicy = "no-referrer";
     const noImg = document.createElement("div");
     noImg.className = "no-image";
     noImg.textContent = "尚無預覽圖";
@@ -2081,6 +2082,7 @@ function openDetail(cat, item) {
   const carousel = document.createElement("div");
   carousel.className = "detail-carousel";
   const imgEl = document.createElement("img");
+  imgEl.referrerPolicy = "no-referrer";
   const captionEl = document.createElement("p");
   captionEl.className = "detail-image-caption";
   function renderImg() {
