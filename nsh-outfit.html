@@ -795,7 +795,7 @@ textarea { resize: vertical; }
 .detail-notes a:hover { color: var(--vermillion); }
 
 /* ============================================================
-   Search & filter bar（頂部列右側，搜尋框與篩選按鈕合併為一個膠囊）
+   Search & filter bar
    ============================================================ */
 .search-filter {
   display: flex;
@@ -1056,7 +1056,7 @@ textarea { resize: vertical; }
 
   <section class="schedule-section">
     <div class="section-head">
-      <h2>台服 v2.3.1 外觀日曆</h2>
+      <h2>台服近期外觀日曆</h2>
       <button id="btnAddSchedule" class="btn btn-ghost hidden">＋ 新增時程</button>
     </div>
     <ol id="scheduleList" class="schedule-list">
@@ -1112,17 +1112,17 @@ textarea { resize: vertical; }
     <button class="modal-close" data-close>✕</button>
     <h3 id="scheduleFormTitle">新增上新時程</h3>
     <form id="scheduleForm">
-      <label>日期
+      <label>日期*
         <input type="date" id="schDate" required />
       </label>
-      <label>分類
-        <input type="text" id="schCategory" placeholder="例：祥瑞、轉盤、時裝…（選填）" />
+      <label>分類*
+        <input type="text" id="schCategory" placeholder=" " />
       </label>
-      <label>標題（外觀名稱）
-        <input type="text" id="schTitle" required placeholder="例：紫霄流晶闕" />
+      <label>上架外觀*
+        <input type="text" id="schTitle" required placeholder=" " />
       </label>
       <label>售價
-        <input type="text" id="schPrice" placeholder="選填，例：1880 紋玉" />
+        <input type="text" id="schPrice" placeholder=" " />
       </label>
       <label>備註
         <textarea id="schNote" rows="3" placeholder="選填，有填寫時列表才會出現展開按鈕"></textarea>
@@ -1168,15 +1168,16 @@ const db = getFirestore(app);
 
 // ============================================================
 // 分類設定 —— 之後要增修各分類的編輯欄位，只需要調整這裡
-// ============================================================
 // field.type 支援： text | number | date | version | select | tags | images | textarea | url
 // field.scope 支援： 'card'（卡片上顯示） | 'detail'（僅詳細頁顯示）
+// ============================================================
 const SALE = ["常駐", "限時", "永久下架", "直售", "禮盒", "盲盒", "天賞", "轉盤", "現金"];
 const PRIZE = ["髮型", "環身", "腳印", "武器", "祥瑞", "坐騎", "技能", "靈寵"];
 const WEAPON = ["流派武器", "賽年神兵", "承影武器"];
 const PETS = ["狗", "貓", "企鵝", "兔子", "鹿", "狐狸", "鳳凰", "鷹", "逆崽", "八爪魚", "異世", "萌萌泥", "兔型福寶", "貓型福寶", "虎型福寶", "羊型福寶", "絨絨", "皮皮鼠", "松鼠"];
 const PETS_GACHA = ["樂樂扭蛋機", "搖搖扭蛋機", "常駐", "限時", "星夢扭蛋機", "盈運扭蛋機"];
 
+// 時裝
 const FASHION_FIELDS = [
   { key: "price", label: "售價", type: "text", scope: "card", suffix: " 紋玉" },
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
@@ -1193,6 +1194,67 @@ const FASHION_FORM_LAYOUT = [
   [{ key: "name", width: 50 }, { key: "hairstyle", width: 50 }],
   [{ key: "price", width: 50 }, { key: "saleMode", width: 50 }],
   [{ key: "announcementUrl", width: 100 }],
+  [{ key: "images", width: 100 }],
+  [{ key: "cnVersion", width: 30 }, { key: "cnDate", width: 70 }],
+  [{ key: "twVersion", width: 30 }, { key: "twDate", width: 70 }],
+  [{ key: "notes", width: 100 }],
+];
+
+// 時裝：戰令時裝
+const FASHION_PASS_FIELDS = [
+  { key: "season", label: "賽季", type: "text", scope: "card" },
+  { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
+  { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
+  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "images", label: "預覽圖片", type: "images", scope: "card" },
+  { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
+  { key: "twVersion", label: "台服上線版本", type: "version", scope: "detail" },
+  { key: "notes", label: "備註", type: "textarea", scope: "detail" },
+];
+const FASHION_PASS_FORM_LAYOUT = [
+  [{ key: "name", width: 60 }, { key: "season", width: 40 }],
+  [{ key: "announcementUrl", width: 100 }],
+  [{ key: "images", width: 100 }],
+  [{ key: "cnVersion", width: 30 }, { key: "cnDate", width: 70 }],
+  [{ key: "twVersion", width: 30 }, { key: "twDate", width: 70 }],
+  [{ key: "notes", width: 100 }],
+];
+
+// 時裝：綁玉專區
+const FASHION_BOUND_FIELDS = [
+  { key: "price", label: "售價", type: "text", scope: "card", suffix: " 綁定紋玉" },
+  { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
+  { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
+  { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
+  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "images", label: "預覽圖片", type: "images", scope: "card" },
+  { key: "hairstyle", label: "天賞髮型", type: "text", scope: "detail" },
+  { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
+  { key: "twVersion", label: "台服上線版本", type: "version", scope: "detail" },
+  { key: "notes", label: "備註", type: "textarea", scope: "detail" },
+];
+const FASHION_BOUND_FORM_LAYOUT = [
+  [{ key: "name", width: 50 }, { key: "hairstyle", width: 50 }],
+  [{ key: "price", width: 50 }, { key: "saleMode", width: 50 }],
+  [{ key: "announcementUrl", width: 100 }],
+  [{ key: "images", width: 100 }],
+  [{ key: "cnVersion", width: 30 }, { key: "cnDate", width: 70 }],
+  [{ key: "twVersion", width: 30 }, { key: "twDate", width: 70 }],
+  [{ key: "notes", width: 100 }],
+];
+
+// 時裝：免費時裝
+const FASHION_FREE_FIELDS = [
+  { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
+  { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
+  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "images", label: "預覽圖片", type: "images", scope: "card" },
+  { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
+  { key: "twVersion", label: "台服上線版本", type: "version", scope: "detail" },
+  { key: "notes", label: "備註", type: "textarea", scope: "detail" },
+];
+const FASHION_FREE_FORM_LAYOUT = [
+  [{ key: "name", width: 50 }, { key: "announcementUrl", width: 50 }],
   [{ key: "images", width: 100 }],
   [{ key: "cnVersion", width: 30 }, { key: "cnDate", width: 70 }],
   [{ key: "twVersion", width: 30 }, { key: "twDate", width: 70 }],
@@ -1449,7 +1511,7 @@ const ITEM_BOX_FORM_LAYOUT = [
   [{ key: "notes", width: 100 }],
 ];
 
-// 莊園
+// 其他：莊園組件
 const MANOR_FIELDS = [
   { key: "priceYU", label: "售價", type: "text", scope: "card", suffix: " 紋玉" },
   { key: "priceTS", label: "售價", type: "text", scope: "card", suffix: " 天賞" },
@@ -1473,8 +1535,27 @@ const MANOR_FORM_LAYOUT = [
   [{ key: "notes", width: 100 }],
 ];
 
-// 其他分類目前先沿用同一套通用欄位（不含天賞髮型），
-// 未來要客製化，直接複製一份 FASHION_FIELDS 修改後指定給該分類即可。
+// 其他：神賜外觀
+const LUXURY_FIELDS = [
+  { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
+  { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
+  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "images", label: "預覽圖片", type: "images", scope: "card" },
+  { key: "highlv", label: "進階", type: "text", scope: "detail" },
+  { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
+  { key: "twVersion", label: "台服上線版本", type: "version", scope: "detail" },
+  { key: "notes", label: "備註", type: "textarea", scope: "detail" },
+];
+const LUXURY_FORM_LAYOUT = [
+  [{ key: "name", width: 50 }, { key: "highlv", width: 50 }],
+  [{ key: "announcementUrl", width: 100 }],
+  [{ key: "images", width: 100 }],
+  [{ key: "cnVersion", width: 30 }, { key: "cnDate", width: 70 }],
+  [{ key: "twVersion", width: 30 }, { key: "twDate", width: 70 }],
+  [{ key: "notes", width: 100 }],
+];
+
+// 通用格式
 const GENERIC_FIELDS = [
   { key: "price", label: "售價", type: "text", scope: "card" },
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
@@ -1496,11 +1577,16 @@ const GENERIC_FORM_LAYOUT = [
   [{ key: "notes", width: 100 }],
 ];
 
-// 分類結構：頂層項目若帶 children，會在頁籤上顯示為下拉選單，每個子項目都是獨立分頁
-// （各自的卡片列表、篩選、新增/編輯表單），欄位設定沿用對應的父分類欄位；
-// 沒有 children 的頂層項目維持原本點擊直接進入的行為。
 const CATEGORIES = [
-  { id: "fashion", label: "時裝", fields: FASHION_FIELDS, formLayout: FASHION_FORM_LAYOUT },
+  {
+    label: "時裝",
+    children: [
+      { id: "fashion", label: "容華閣", fields: FASHION_FIELDS, formLayout: FASHION_FORM_LAYOUT },
+      { id: "fashion-pass", label: "戰令時裝", fields: FASHION_PASS_FIELDS, formLayout: FASHION_PASS_FORM_LAYOUT },
+      { id: "fashion-bound", label: "綁玉專區", fields: FASHION_BOUND_FIELDS, formLayout: FASHION_BOUND_FORM_LAYOUT },
+      { id: "fashion-free", label: "免費時裝", fields: FASHION_FREE_FIELDS, formLayout: FASHION_FREE_FORM_LAYOUT },
+    ],
+  },
   { id: "roulette", label: "轉盤", fields: ROULETTE_FIELDS, formLayout: ROULETTE_FORM_LAYOUT },
   {
     label: "武器",
@@ -1554,8 +1640,9 @@ const CATEGORIES = [
   {
     label: "其他",
     children: [
-      { id: "other-manor", label: "莊園", fields: MANOR_FIELDS, formLayout: MANOR_FORM_LAYOUT },
-      { id: "other-bond", label: "俠緣", fields: GENERIC_FIELDS, formLayout: GENERIC_FORM_LAYOUT },
+      { id: "other-manor", label: "莊園組件", fields: MANOR_FIELDS, formLayout: MANOR_FORM_LAYOUT },
+      { id: "other-bond", label: "俠緣外觀", fields: GENERIC_FIELDS, formLayout: GENERIC_FORM_LAYOUT },
+      { id: "other-luxury", label: "神賜外觀", fields: LUXURY_FIELDS, formLayout: LUXURY_FORM_LAYOUT },
     ],
   },
 ];
@@ -1610,7 +1697,6 @@ function categoryOf(id) {
   return allLeafCategories().find((c) => c.id === id);
 }
 
-// 將 Firestore Timestamp（或其序列化形式）轉為毫秒數，供排序比較使用；缺值視為 0（最舊）。
 function toMillis(ts) {
   if (!ts) return 0;
   if (typeof ts.toMillis === "function") return ts.toMillis();
@@ -1625,12 +1711,10 @@ function esc(str) {
   return div.innerHTML;
 }
 
-// 將文字中的網址轉為可點擊連結（新分頁開啟），其餘文字維持 HTML 逸出，避免注入風險
 function linkify(text) {
   const escaped = esc(text);
   const urlPattern = /((https?:\/\/|www\.)[^\s<]+)/gi;
   return escaped.replace(urlPattern, (match) => {
-    // 去掉常見句尾標點，避免把標點符號也吃進連結裡
     const trailing = match.match(/[),.!?;:]+$/);
     const clean = trailing ? match.slice(0, -trailing[0].length) : match;
     const rest = trailing ? trailing[0] : "";
@@ -1735,7 +1819,7 @@ function setCategory(id) {
 }
 
 // ============================================================
-// Firestore：外觀資料 即時同步
+// 即時同步
 // ============================================================
 function subscribeItems(categoryId) {
   if (unsubItems) unsubItems();
@@ -2138,8 +2222,8 @@ function openDetail(cat, item) {
   const saleWrap = document.createElement("div");
   saleWrap.className = "detail-sale-row";
 
+  // 寵物專屬版型：售價移到標題下方左側；售賣模式／扭蛋模式移到查看公告左側
   if (isPets) {
-    // 寵物專屬版型：售價移到標題下方左側；售賣模式／扭蛋模式移到查看公告左側
     const priceWrap = document.createElement("div");
     priceWrap.className = "detail-pets-price";
     cat.fields
@@ -2291,7 +2375,6 @@ onAuthStateChanged(auth, (user) => {
   $("#fabAdmin").classList.toggle("is-admin", isAdmin);
   $("#fabAdmin").title = isAdmin ? `登出（${user.email}）` : "管理員登入";
   $("#fabAddItem").classList.toggle("hidden", !isAdmin || databaseSection.classList.contains("hidden"));
-  // 重新渲染以顯示/隱藏編輯按鈕
   if (itemsByCategory[currentCategory]) applyFilters();
   renderSchedule();
 });
