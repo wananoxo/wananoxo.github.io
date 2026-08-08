@@ -1183,7 +1183,7 @@ const FASHION_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "hairstyle", label: "天賞髮型", type: "text", scope: "detail" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
@@ -1205,7 +1205,7 @@ const FASHION_PASS_FIELDS = [
   { key: "season", label: "賽季", type: "text", scope: "card" },
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
   { key: "twVersion", label: "台服上線版本", type: "version", scope: "detail" },
@@ -1226,7 +1226,7 @@ const FASHION_BOUND_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "hairstyle", label: "天賞髮型", type: "text", scope: "detail" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
@@ -1245,16 +1245,20 @@ const FASHION_BOUND_FORM_LAYOUT = [
 
 // 時裝：免費時裝
 const FASHION_FREE_FIELDS = [
+  { key: "collab", label: "聯動", type: "text", scope: "detail" },
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
+  { key: "source", label: "獲取", type: "text", scope: "detail" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
   { key: "twVersion", label: "台服上線版本", type: "version", scope: "detail" },
   { key: "notes", label: "備註", type: "textarea", scope: "detail" },
 ];
 const FASHION_FREE_FORM_LAYOUT = [
-  [{ key: "name", width: 50 }, { key: "announcementUrl", width: 50 }],
+  [{ key: "name", width: 50 }, {key: "collab", width: 50}],
+  [{ key: "source", width: 100 }],
+  [{ key: "announcementUrl", width: 100 }],
   [{ key: "images", width: 100 }],
   [{ key: "cnVersion", width: 30 }, { key: "cnDate", width: 70 }],
   [{ key: "twVersion", width: 30 }, { key: "twDate", width: 70 }],
@@ -1267,7 +1271,7 @@ const ROULETTE_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "prize", label: "獎池", type: "tags", options: PRIZE, scope: "card" },
-  { key: "announcementUrl", label: "公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "hair", label: "髮型", type: "text", scope: "detail" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
@@ -1290,7 +1294,7 @@ const WEAPON_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
   { key: "twVersion", label: "台服上線版本", type: "version", scope: "detail" },
@@ -1313,15 +1317,15 @@ const MOUNT_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
-  { key: "class", label: "進階", type: "text", scope: "detail" },
+  { key: "highlv", label: "進階", type: "text", scope: "detail" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
   { key: "twVersion", label: "台服上線版本", type: "version", scope: "detail" },
   { key: "notes", label: "備註", type: "textarea", scope: "detail" },
 ];
 const MOUNT_FORM_LAYOUT = [
-  [{ key: "name", width: 50 }, { key: "class", width: 50 }],
+  [{ key: "name", width: 50 }, { key: "highlv", width: 50 }],
   [{ key: "priceYU", width: 30 }, { key: "priceTS", width: 30 }, { key: "saleMode", width: 40 }],
   [{ key: "announcementUrl", width: 100 }],
   [{ key: "images", width: 100 }],
@@ -1337,7 +1341,7 @@ const SKILL_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "gift", label: "贈禮", type: "text", scope: "detail" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
@@ -1361,7 +1365,7 @@ const CHESS_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "gift", label: "贈禮", type: "text", scope: "detail" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
@@ -1384,7 +1388,7 @@ const PETS_SR_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "pets", label: "種類", type: "text", scope: "detail" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
@@ -1408,7 +1412,7 @@ const PETS_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "class", label: "品級", type: "text", scope: "detail" },
   { key: "pets", label: "種類", type: "tags", options: PETS, scope: "detail" },
@@ -1432,7 +1436,7 @@ const PETS_GACHA_FIELDS = [
   { key: "shiny", label: "偏色", type: "text", scope: "card" },
   { key: "cnVersion", label: "陸服更新版本", type: "version", scope: "detail" },
   { key: "twVersion", label: "台服更新版本", type: "version", scope: "detail" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "class", label: "品級", type: "text", scope: "detail" },
   { key: "notes", label: "備註", type: "textarea", scope: "detail" },
@@ -1451,7 +1455,7 @@ const PETS_EVENT_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "class", label: "品級", type: "text", scope: "detail" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
@@ -1473,7 +1477,7 @@ const ITEM_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
   { key: "twVersion", label: "台服上線版本", type: "version", scope: "detail" },
@@ -1494,7 +1498,7 @@ const ITEM_BOX_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "limit", label: "限購", type: "text", scope: "detail", suffix: " 個"  },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
@@ -1518,7 +1522,7 @@ const MANOR_FIELDS = [
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
   { key: "saleMode", label: "販售模式", type: "tags", options: SALE, scope: "card" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "gift", label: "贈禮", type: "text", scope: "detail" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
@@ -1537,9 +1541,10 @@ const MANOR_FORM_LAYOUT = [
 
 // 其他：神賜外觀
 const LUXURY_FIELDS = [
+  { key: "type", label: "類型", type: "text", scope: "detail" },
   { key: "cnDate", label: "陸服上線日期", type: "date", scope: "detail" },
   { key: "cnVersion", label: "陸服上線版本", type: "version", scope: "detail" },
-  { key: "announcementUrl", label: "對應公告", type: "url", scope: "detail" },
+  { key: "announcementUrl", label: "公告連結", type: "url", scope: "detail" },
   { key: "images", label: "預覽圖片", type: "images", scope: "card" },
   { key: "highlv", label: "進階", type: "text", scope: "detail" },
   { key: "twDate", label: "台服上線日期", type: "date", scope: "detail" },
@@ -2413,12 +2418,12 @@ function openItemForm(cat, item) {
         return buildImageList(`f_${f.key}`, item?.[f.key] || []);
       case "version": {
         const el = buildInput("text", `f_${f.key}`, item?.[f.key] || "");
-        el.placeholder = "例：1.1.1";
+        el.placeholder = " ";
         return el;
       }
       case "url": {
         const el = buildInput("url", `f_${f.key}`, item?.[f.key] || "");
-        el.placeholder = "公告網址 https://...";
+        el.placeholder = "https://...";
         return el;
       }
       default:
